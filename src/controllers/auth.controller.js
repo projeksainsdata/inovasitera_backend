@@ -8,8 +8,6 @@ import config from '../config/config.js'
 import emailVerifyTemplate from '../helpers/emailTemplate.js'
 
 export default class AuthController {
-
-
   constructor() {
     this.services = new AuthService()
     this.userService = new UserService()
@@ -21,7 +19,7 @@ export default class AuthController {
       }
     })
   }
-  
+
   generateUsername = async (email) => {
     // LIKE DISCORD LOGIC TO GENERATE USERNAME
     // USERNAME#XXXX

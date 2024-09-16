@@ -81,11 +81,11 @@ export default class AuthService {
   }
   // get and verify email verify token
   async getAndVerifyEmailVerifyToken(token) {
-      const emailVerifyToken = await this.getEmailVerifyToken(token)
-      if (!emailVerifyToken) {
-        throw new ResponeError('Invalid token', 400)
-      }
-      return this.verifyEmailVerifyToken(emailVerifyToken)
+    const emailVerifyToken = await this.getEmailVerifyToken(token)
+    if (!emailVerifyToken) {
+      throw new ResponeError('Invalid token', 400)
+    }
+    return this.verifyEmailVerifyToken(emailVerifyToken)
   }
 
   // delete email verify token
@@ -114,12 +114,12 @@ export default class AuthService {
 
   // get and verify reset password token
   async getAndVerifyResetPasswordToken(token) {
-      const resetToken = ResetPassword.findOne({ token })
+    const resetToken = ResetPassword.findOne({ token })
 
-      if (!resetToken) {
-        throw new ResponeError('Invalid token', 400)
-      }
-      return this.verifyResetPasswordToken(resetToken)
+    if (!resetToken) {
+      throw new ResponeError('Invalid token', 400)
+    }
+    return this.verifyResetPasswordToken(resetToken)
   }
 
   // create reset password token
