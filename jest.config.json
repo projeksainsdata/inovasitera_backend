@@ -1,0 +1,8 @@
+{
+  "testEnvironment": "node",
+  "moduleFileExtensions": ["js"],
+  "collectCoverage": true,
+  "coverageDirectory": "coverage",
+  "coverageReporters": ["text-summary", "lcov"],
+  "verbose": true
+}
