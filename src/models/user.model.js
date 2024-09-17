@@ -79,9 +79,24 @@ const userSchema = new Schema({
     type: String,
     default: ''
   },
-  isVerified: {
-    type: Boolean,
-    default: false
+
+  inovator: {
+    unit: {
+      type: String,
+      default: ''
+    },
+    fields: {
+      type: Array,
+      default: []
+    },
+    itera_fakultas: {
+      type: String,
+      default: ''
+    },
+    itera_prodi: {
+      type: String,
+      default: ''
+    }
   }
 })
 
@@ -94,7 +109,7 @@ userSchema.index(
     unique: true
   }
 )
-const UserModel = model('users', userSchema)
+const UserModel = model('Users', userSchema)
 
 UserModel.createIndexes()
 export default UserModel
