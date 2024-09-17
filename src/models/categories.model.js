@@ -20,7 +20,6 @@ const categorySchema = new Schema({
 
 categorySchema.index({ name: 1 }, { unique: true })
 
-
 const Category = model('Categories', categorySchema)
 
 Category.createIndexes()

@@ -164,4 +164,3 @@ export const userQuerySchema = Joi.object({
   sort: Joi.string().default('createdAt'),
   order: Joi.string().default('desc')
 })
-

@@ -1,5 +1,5 @@
-import Joi from "joi";
-// SCHEMA RATING MODEL 
+import Joi from 'joi'
+// SCHEMA RATING MODEL
 
 // const ratingSchema = new Schema({
 //     user_id: {
@@ -12,7 +12,7 @@ import Joi from "joi";
 //       ref: 'Inovations',
 //       required: true
 //     },
-  
+
 //     rating: {
 //       type: Number,
 //       required: true,
@@ -29,32 +29,30 @@ import Joi from "joi";
 //     }
 //   })
 
-
 export const ratingSchema = Joi.object({
-    user_id: Joi.string().required(),
-    inovation_id: Joi.string().required(),
-    rating: Joi.number().min(1).max(5).required(),
-    comment: Joi.string().allow(null, ''),
-    createdAt: Joi.date().allow(null, ''),
-});
+  user_id: Joi.string().required(),
+  inovation_id: Joi.string().required(),
+  rating: Joi.number().min(1).max(5).required(),
+  comment: Joi.string().allow(null, ''),
+  createdAt: Joi.date().allow(null, '')
+})
 
 export const ratingUpdateSchema = Joi.object({
-    user_id: Joi.string().required(),
-    inovation_id: Joi.string().required(),
-    rating: Joi.number().min(1).max(5).required(),
-    comment: Joi.string().allow(null, ''),
-    createdAt: Joi.date().allow(null, ''),
-});
+  user_id: Joi.string().required(),
+  inovation_id: Joi.string().required(),
+  rating: Joi.number().min(1).max(5).required(),
+  comment: Joi.string().allow(null, ''),
+  createdAt: Joi.date().allow(null, '')
+})
 
 export const ratingIdSchema = Joi.object({
-    id: Joi.string().required(),
-});
+  id: Joi.string().required()
+})
 
 export const ratingQuerySchema = Joi.object({
-    page : Joi.number().default(1),
-    perPage : Joi.number().default(10),
-    q: Joi.string().allow(null, ''),
-    sort: Joi.string().default('rating'),
-    order: Joi.string().default('desc')
-});
-
+  page: Joi.number().default(1),
+  perPage: Joi.number().default(10),
+  q: Joi.string().allow(null, ''),
+  sort: Joi.string().default('rating'),
+  order: Joi.string().default('desc')
+})
