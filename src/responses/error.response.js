@@ -1,63 +1,63 @@
-import logger from '../application/logger.js'
-import uuid from '../utils/uuid.js'
+import logger from '../application/logger.js';
+import uuid from '../utils/uuid.js';
 export default class ResponseError extends Error {
   constructor(message, status = 500) {
-    super(message)
-    this.status = status || status | 500
-    this.message = message
-    this.requestTime = new Date().toISOString()
-    this.requestId = uuid()
-    this.log()
+    super(message);
+    this.status = status || status | 500;
+    this.message = message;
+    this.requestTime = new Date().toISOString();
+    this.requestId = uuid();
+    this.log();
   }
 
   log() {
     logger.error(
-      `Request ID: ${this.requestId} - Request Time: ${this.requestTime} - Message: ${this.message} - Status: ${this.status}`
-    )
+      `Request ID: ${this.requestId} - Request Time: ${this.requestTime} - Message: ${this.message} - Status: ${this.status}`,
+    );
   }
 
   static badRequest(error) {
-    return new ResponseError(error, 400)
+    return new ResponseError(error, 400);
   }
 
   static unauthorized(message) {
-    return new ResponseError(message, 401)
+    return new ResponseError(message, 401);
   }
 
   static forbidden(message) {
-    return new ResponseError(message, 403)
+    return new ResponseError(message, 403);
   }
 
   static notFound(message) {
-    return new ResponseError(message, 404)
+    return new ResponseError(message, 404);
   }
 
   static conflict(message) {
-    return new ResponseError(message, 409)
+    return new ResponseError(message, 409);
   }
 
   static unprocessableEntity(message) {
-    return new ResponseError(message, 422)
+    return new ResponseError(message, 422);
   }
 
   static internalServerError(message) {
-    return new ResponseError(message, 500)
+    return new ResponseError(message, 500);
   }
 
   static notImplemented(message) {
-    return new ResponseError(message, 501)
+    return new ResponseError(message, 501);
   }
 
   static badGateway(message) {
-    return new ResponseError(message, 502)
+    return new ResponseError(message, 502);
   }
 
   static serviceUnavailable(message) {
-    return new ResponseError(message, 503)
+    return new ResponseError(message, 503);
   }
 
   static gatewayTimeout(message) {
-    return new ResponseError(message, 504)
+    return new ResponseError(message, 504);
   }
 
   toJson() {
@@ -65,7 +65,7 @@ export default class ResponseError extends Error {
       requestTime: this.requestTime,
       requestId: this.requestId,
       status: this.status,
-      message: this.message
-    }
+      message: this.message,
+    };
   }
 }

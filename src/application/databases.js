@@ -1,4 +1,4 @@
-import logger from './logger.js'
+import logger from './logger.js';
 
 export default function connection(mongoose, config, options) {
   function connectToMongo() {
@@ -7,33 +7,33 @@ export default function connection(mongoose, config, options) {
       .then(
         () => {},
         (err) => {
-          logger.error(err)
-        }
+          logger.error(err);
+        },
       )
       .catch((err) => {
-        logger.error(err)
-      })
+        logger.error(err);
+      });
   }
 
   mongoose.connection.on('connected', () => {
-    logger.info('MongoDB connected!')
-  })
+    logger.info('MongoDB connected!');
+  });
 
   mongoose.connection.on('reconnected', () => {
-    logger.info('MongoDB reconnected!')
-  })
+    logger.info('MongoDB reconnected!');
+  });
 
   mongoose.connection.on('error', (error) => {
-    logger.error(`MongoDB connection error: ${error}`)
-    mongoose.disconnect()
-  })
+    logger.error(`MongoDB connection error: ${error}`);
+    mongoose.disconnect();
+  });
 
   mongoose.connection.on('disconnected', () => {
-    logger.error('MongoDB disconnected! Reconnecting... ')
-    setTimeout(() => connectToMongo(), 1000)
-  })
+    logger.error('MongoDB disconnected! Reconnecting... ');
+    setTimeout(() => connectToMongo(), 1000);
+  });
 
   return {
-    connectToMongo
-  }
+    connectToMongo,
+  };
 }

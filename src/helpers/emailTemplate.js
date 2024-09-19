@@ -167,7 +167,7 @@ table, td { color: #000000; } #u_body a { color: #0000ee; text-decoration: under
       <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:50px 10px 30px;font-family:'Montserrat',sans-serif;" align="left">
         
   <!--[if mso]><table width="100%"><tr><td><![endif]-->
-    <h1 class="v-text-align v-font-size" style="margin: 0px; color: #27187e; line-height: 140%; text-align: center; word-wrap: break-word; font-family: 'Montserrat',sans-serif; font-size: 36px; font-weight: 400;"><strong>${type === "email"? "Verify You" : "Reset Password"} Email</strong></h1>
+    <h1 class="v-text-align v-font-size" style="margin: 0px; color: #27187e; line-height: 140%; text-align: center; word-wrap: break-word; font-family: 'Montserrat',sans-serif; font-size: 36px; font-weight: 400;"><strong>${type === 'email' ? 'Verify You' : 'Reset Password'} Email</strong></h1>
   <!--[if mso]></td></tr></table><![endif]-->
 
       </td>
@@ -258,7 +258,7 @@ table, td { color: #000000; } #u_body a { color: #0000ee; text-decoration: under
   <div class="v-text-align v-font-size" style="font-size: 14px; color: #4b4a4a; line-height: 190%; text-align: left; word-wrap: break-word;">
     <p style="font-size: 14px; line-height: 190%;"><span style="font-size: 18px; line-height: 34.2px;"><strong><span style="line-height: 34.2px; font-size: 18px;">Dear ${email},</span></strong></span></p>
 <p style="font-size: 14px; line-height: 190%;"><span style="font-size: 16px; line-height: 30.4px;">We have successfully Send you Link To ${
-    type == "email" ? "Verify" : "Reset Password"
+    type == 'email' ? 'Verify' : 'Reset Password'
   } your Email Click Bellow or ${link}</span></p>
   </div>
 

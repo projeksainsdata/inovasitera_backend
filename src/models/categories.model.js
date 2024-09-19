@@ -1,26 +1,26 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
-const Schema = mongoose.Schema
-const model = mongoose.model
+const Schema = mongoose.Schema;
+const model = mongoose.model;
 
 const categorySchema = new Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   description: {
     type: String,
-    required: false
+    required: false,
   },
   image: {
     type: String,
-    required: false
-  }
-})
+    required: false,
+  },
+});
 
-categorySchema.index({ name: 1 }, { unique: true })
+categorySchema.index({name: 1}, {unique: true});
 
-const Category = model('Categories', categorySchema)
+const Category = model('Categories', categorySchema);
 
-Category.createIndexes()
-export default Category
+Category.createIndexes();
+export default Category;

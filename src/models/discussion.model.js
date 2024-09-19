@@ -1,37 +1,37 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
-const Schema = mongoose.Schema
-const model = mongoose.model
+const Schema = mongoose.Schema;
+const model = mongoose.model;
 
 const discussionSchema = new Schema(
   {
     inovation_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Inovations'
+      ref: 'Inovations',
     },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Users'
+      ref: 'Users',
     },
     content: {
       type: String,
-      required: true
+      required: true,
     },
     parent_discussion_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Discussions',
-      default: null
-    }
+      default: null,
+    },
   },
-  { timestamps: true }
-)
+  {timestamps: true},
+);
 
 discussionSchema.virtual('replies', {
   ref: 'Discussions',
   localField: '_id',
-  foreignField: 'parent_discussion_id'
-})
+  foreignField: 'parent_discussion_id',
+});
 
-const Discussion = model('Discussions', discussionSchema)
+const Discussion = model('Discussions', discussionSchema);
 
-export default Discussion
+export default Discussion;

@@ -1,14 +1,14 @@
-import mongoose from "mongoose";
-import uuidV4 from "../utils/uuid.js";
-import dateExpired from "../helpers/dateExpired.js";
-import config from "../config/config.js";
+import mongoose from 'mongoose';
+import uuidV4 from '../utils/uuid.js';
+import dateExpired from '../helpers/dateExpired.js';
+import config from '../config/config.js';
 
 // this is the refresh token model for refresh token jwt token
 const RefreshTokenSchema = new mongoose.Schema({
   token: String,
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "users",
+    ref: 'users',
   },
   expiryDate: {
     type: Date,
@@ -35,11 +35,11 @@ RefreshTokenSchema.statics.verifyExpiration = (token) => {
 };
 
 // auto delete token when expire with expireAfterSeconds
-RefreshTokenSchema.index({ createdAt: 1 }, { expireAfterSeconds: 0 });
+RefreshTokenSchema.index({createdAt: 1}, {expireAfterSeconds: 0});
 // create index token
-RefreshTokenSchema.index({ token: 1 });
+RefreshTokenSchema.index({token: 1});
 
 // remove auto when expired
-const RefreshToken = mongoose.model("RefreshToken", RefreshTokenSchema);
+const RefreshToken = mongoose.model('RefreshToken', RefreshTokenSchema);
 
 export default RefreshToken;

@@ -1,36 +1,34 @@
-import express from 'express'
-import AuthController from '../controllers/auth.controller.js'
-import authMiddleware from '../middlewares/auth.middleware.js'
+import express from 'express';
+import AuthController from '../controllers/auth.controller.js';
+import authMiddleware from '../middlewares/auth.middleware.js';
 
 export default function () {
-  const router = express.Router()
-  const controller = new AuthController()
-  
-  router.post('/register', controller.register)
-  router.post('/login', controller.login)
-  router.post('/refresh-token', controller.refreshToken)
+  const router = express.Router();
+  const controller = new AuthController();
 
-  router.post('/forgot-password', controller.forgotPassword)
-  router.post('/reset-password', controller.resetPassword)
+  router.post('/register', controller.register);
+  router.post('/login', controller.login);
+  router.post('/refresh-token', controller.refreshToken);
+
+  router.post('/forgot-password', controller.forgotPassword);
+  router.post('/reset-password', controller.resetPassword);
 
   router.post(
     '/verify-email',
     [authMiddleware],
-    controller.sendEmailVerification
-  )
+    controller.sendEmailVerification,
+  );
 
-  router.post('/resend-email', [authMiddleware], controller.resendEmail)
+  router.post('/resend-email', [authMiddleware], controller.resendEmail);
 
-  router.post('/confirm-email/:token', controller.confirmEmail)
+  router.post('/confirm-email/:token', controller.confirmEmail);
 
-  router.post('/logout', [authMiddleware], controller.logout)
+  router.post('/logout', [authMiddleware], controller.logout);
 
-  router.get('/me', [authMiddleware], controller.me)
+  router.get('/me', [authMiddleware], controller.me);
 
-  // login with google 
-  router.post('/google', controller.loginWithGoogle)
+  // login with google
+  router.post('/google', controller.loginWithGoogle);
 
-
-
-  return router
+  return router;
 }

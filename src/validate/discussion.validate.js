@@ -1,4 +1,4 @@
-import Joi from 'joi'
+import Joi from 'joi';
 
 // SCHEMA DISCUSSION MODEL
 
@@ -29,25 +29,25 @@ export const discussionSchema = Joi.object({
   user_id: Joi.string().required(),
   content: Joi.string().required(),
   parent_discussion_id: Joi.string().allow(null, ''),
-  createdAt: Joi.date().allow(null, '')
-})
+  createdAt: Joi.date().allow(null, ''),
+});
 
 export const discussionUpdateSchema = Joi.object({
   inovation_id: Joi.string().required(),
   user_id: Joi.string().required(),
   content: Joi.string().required(),
   parent_discussion_id: Joi.string().allow(null, ''),
-  createdAt: Joi.date().allow(null, '')
-})
+  createdAt: Joi.date().allow(null, ''),
+});
 
 export const discussionIdSchema = Joi.object({
-  id: Joi.string().required()
-})
+  id: Joi.string().required(),
+});
 
 export const discussionQuerySchema = Joi.object({
   page: Joi.number().default(1),
   perPage: Joi.number().default(10),
   q: Joi.string().allow(null, ''),
   sort: Joi.string().default('createdAt'),
-  order: Joi.string().default('desc')
-})
+  order: Joi.string().default('desc'),
+});

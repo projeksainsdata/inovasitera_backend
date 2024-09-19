@@ -67,8 +67,7 @@ const userSchema = new Schema({
   },
   phonenumber: {
     type: String,
-    default: '',// make new user
-      
+    default: '', // make new user
   },
 
   //  password management

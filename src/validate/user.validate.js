@@ -1,4 +1,4 @@
-import Joi from 'joi'
+import Joi from 'joi';
 
 // SCHEMA users model
 // const userSchema = new Schema({
@@ -95,7 +95,7 @@ export const userSchema = Joi.object({
   password: Joi.string().required(),
   provider: Joi.string().default('local'),
   profile: Joi.string().default(
-    'https://api.dicebear.com/9.x/avatars/1.svg?seed=1'
+    'https://api.dicebear.com/9.x/avatars/1.svg?seed=1',
   ),
   address: Joi.string().default(''),
   phonenumber: Joi.string().default(''),
@@ -105,9 +105,9 @@ export const userSchema = Joi.object({
     unit: Joi.string().default(''),
     fields: Joi.array().default([]),
     itera_fakultas: Joi.string().default(''),
-    itera_prodi: Joi.string().default('')
-  })
-})
+    itera_prodi: Joi.string().default(''),
+  }),
+});
 
 export const userUpdateSchema = Joi.object({
   role: Joi.string().valid('admin', 'inovator', 'member'),
@@ -125,42 +125,42 @@ export const userUpdateSchema = Joi.object({
     unit: Joi.string(),
     fields: Joi.array(),
     itera_fakultas: Joi.string(),
-    itera_prodi: Joi.string()
-  })
-})
+    itera_prodi: Joi.string(),
+  }),
+});
 
 export const userLoginSchema = Joi.object({
   email: Joi.string().required(),
-  password: Joi.string().required()
-})
+  password: Joi.string().required(),
+});
 
 export const userRegisterSchema = Joi.object({
   fullname: Joi.string().required(),
   username: Joi.string().required(),
   email: Joi.string().required(),
   password: Joi.string().required(),
-  confirmPassword: Joi.ref('password')
-})
+  confirmPassword: Joi.ref('password'),
+});
 
 export const userChangePasswordSchema = Joi.object({
   oldPassword: Joi.string().required(),
   newPassword: Joi.string().required(),
-  confirmPassword: Joi.ref('newPassword')
-})
+  confirmPassword: Joi.ref('newPassword'),
+});
 
 export const userForgotPasswordSchema = Joi.object({
-  email: Joi.string().required()
-})
+  email: Joi.string().required(),
+});
 export const userResetPasswordSchema = Joi.object({
   token: Joi.string().required(),
   password: Joi.string().required(),
-  password2: Joi.ref('password')
-})
+  password2: Joi.ref('password'),
+});
 
 export const userQuerySchema = Joi.object({
   page: Joi.number().default(1),
   perPage: Joi.number().default(10),
   q: Joi.string().allow(''),
   sort: Joi.string().default('createdAt'),
-  order: Joi.string().default('desc')
-})
+  order: Joi.string().default('desc'),
+});

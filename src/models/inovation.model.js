@@ -1,69 +1,69 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
-const Schema = mongoose.Schema
-const model = mongoose.model
+const Schema = mongoose.Schema;
+const model = mongoose.model;
 
 const inovatationSchema = new Schema(
   {
     title: {
       type: String,
-      required: true
+      required: true,
     },
     description: {
       type: String,
-      required: false
+      required: false,
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Categories'
+      ref: 'Categories',
     },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Users'
+      ref: 'Users',
     },
     status: {
       type: String,
       default: 'pending',
-      enum: ['pending', 'approved', 'rejected']
+      enum: ['pending', 'approved', 'rejected'],
     },
     Image: {
       type: String,
-      required: false
+      required: false,
     },
 
     adventage: {
       type: String,
-      required: false
+      required: false,
     },
 
     status_paten: {
       type: String,
-      required: false
+      required: false,
     },
 
     score_tkt: {
       type: String,
-      required: false
+      required: false,
     },
 
     invesment_value: {
       type: String,
-      required: false
+      required: false,
     },
 
     collaboration: {
       type: [String],
-      required: false
+      required: false,
     },
 
     collaboration_details: {
       type: String,
-      required: false
-    }
+      required: false,
+    },
   },
-  { timestamps: true }
-)
+  {timestamps: true},
+);
 
-const Inovatation = model('Inovations', inovatationSchema)
+const Inovatation = model('Inovations', inovatationSchema);
 
-export default Inovatation
+export default Inovatation;

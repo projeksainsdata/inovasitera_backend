@@ -1,14 +1,14 @@
-import ResponseError from '../responses/error.response.js'
+import ResponseError from '../responses/error.response.js';
 export default function isAdminMiddleware(req, res, next) {
   try {
-    const users = req.user
+    const users = req.user;
     // check role of user is admin or not
     if (users.role !== 'admin') {
-      throw new ResponseError('Forbidden Access denied', 403)
+      throw new ResponseError('Forbidden Access denied', 403);
     }
 
-    next()
+    next();
   } catch (err) {
-    next(err)
+    next(err);
   }
 }

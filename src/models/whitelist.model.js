@@ -1,22 +1,22 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
 const whitelistSchema = new mongoose.Schema({
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Users',
-    required: true
+    required: true,
   },
   inovation_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Inovations',
-    required: true
+    required: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
-})
+    default: Date.now,
+  },
+});
 
-const Whitelist = mongoose.model('Whitelists', whitelistSchema)
+const Whitelist = mongoose.model('Whitelists', whitelistSchema);
 
-export default Whitelist
+export default Whitelist;

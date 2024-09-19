@@ -1,4 +1,4 @@
-import Joi from 'joi'
+import Joi from 'joi';
 
 // SCHEMA INOVATION MODEL
 // const inovatationSchema = new Schema(
@@ -75,8 +75,8 @@ export const inovationSchema = Joi.object({
   score_tkt: Joi.string().optional(),
   invesment_value: Joi.string().optional(),
   collaboration: Joi.array().optional(),
-  collaboration_details: Joi.string().optional()
-})
+  collaboration_details: Joi.string().optional(),
+});
 
 export const inovationUpdateSchema = Joi.object({
   title: Joi.string().required(),
@@ -90,17 +90,17 @@ export const inovationUpdateSchema = Joi.object({
   score_tkt: Joi.string().optional(),
   invesment_value: Joi.string().optional(),
   collaboration: Joi.array().optional(),
-  collaboration_details: Joi.string().optional()
-})
+  collaboration_details: Joi.string().optional(),
+});
 
 export const inovationIdSchema = Joi.object({
-  id: Joi.string().required()
-})
+  id: Joi.string().required(),
+});
 
 export const inovationQuerySchema = Joi.object({
   page: Joi.number().default(1),
   perPage: Joi.number().default(10),
   q: Joi.string().allow(null, ''),
   sort: Joi.string().default('createdAt'),
-  order: Joi.string().default('desc')
-})
+  order: Joi.string().default('desc'),
+});

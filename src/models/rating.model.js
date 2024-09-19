@@ -1,36 +1,36 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
-const Schema = mongoose.Schema
-const model = mongoose.model
+const Schema = mongoose.Schema;
+const model = mongoose.model;
 
 const ratingSchema = new Schema({
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Users',
-    required: true
+    required: true,
   },
   inovation_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Inovations',
-    required: true
+    required: true,
   },
 
   rating: {
     type: Number,
     required: true,
     min: 1,
-    max: 5
+    max: 5,
   },
   comment: {
     type: String,
-    required: false
+    required: false,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
-})
+    default: Date.now,
+  },
+});
 
-const RatingModel = model('Ratings', ratingSchema)
+const RatingModel = model('Ratings', ratingSchema);
 
-export default RatingModel
+export default RatingModel;
