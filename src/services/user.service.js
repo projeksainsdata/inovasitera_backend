@@ -14,6 +14,7 @@ export default class UserService {
         id: newUser._id,
         email: newUser.email,
         username: newUser.username,
+        fullname: newUser.fullname,
       };
     } catch (error) {
       throw new ResponseError(error.message, 400);
@@ -29,9 +30,6 @@ export default class UserService {
     return await UserModel.findById(id).select('role');
   }
 
-  async findByUsername(username) {
-    return await UserModel.find({username});
-  }
   //   findById(id) {
   async findById(id) {
     return await UserModel.findById(id);
@@ -48,44 +46,31 @@ export default class UserService {
     return await RefreshToken.deleteMany({user: userId});
   }
 
-  // update verification status
-  async updateVerificationStatus(userId, status) {
-    return await UserModel.findByIdAndUpdate(
-      userId,
-      {isVerified: status},
-      {new: true},
-    );
-  }
-
-  async updatePassword(userId, password) {
-    return await UserModel.findByIdAndUpdate(userId, {password}, {new: true});
+  // update user
+  async updateUser(userId, user) {
+    return await UserModel.findByIdAndUpdate(userId, {$set: user}, {new: true});
   }
 
   // search users
-  async searchUsers({page, perPage, q}) {
+  async searchUsers({page, perPage, q, sort, order}) {
     if (!q) {
       return await UserModel.find()
         .select('-password -createdAt -updatedAt -__v')
         .skip((page - 1) * perPage)
-        .limit(perPage);
+        .limit(perPage)
+        .sort({[sort]: order});
     }
     return await UserModel.find({
       $or: [
         {fullname: {$regex: new RegExp(q, 'i')}},
         {username: {$regex: new RegExp(q, 'i')}},
         {email: {$regex: new RegExp(q, 'i')}},
-        {'personal_info.bio': {$regex: new RegExp(q, 'i')}},
       ],
     })
       .select('-password -createdAt -updatedAt -__v')
-
       .skip((page - 1) * perPage)
-      .limit(perPage);
-  }
-
-  // update user
-  async updateUser(userId, user) {
-    return await UserModel.findByIdAndUpdate(userId, {$set: user}, {new: true});
+      .limit(perPage)
+      .sort({[sort]: order});
   }
 
   // count search users
@@ -95,7 +80,6 @@ export default class UserService {
         {fullname: {$regex: new RegExp(query, 'i')}},
         {username: {$regex: new RegExp(query, 'i')}},
         {email: {$regex: new RegExp(query, 'i')}},
-        {'personal_info.bio': {$regex: new RegExp(query, 'i')}},
       ],
     });
   }
@@ -103,35 +87,5 @@ export default class UserService {
   // delete user
   async deleteUser(userId) {
     return await UserModel.findByIdAndDelete(userId);
-  }
-
-  async updateUserByUsername(username, updateFields) {
-    const user = await UserModel.findOneAndUpdate(
-      {username},
-      {$set: updateFields},
-      {new: true},
-    );
-
-    if (!user) {
-      throw new ResponseError('User not found', 404);
-    }
-
-    return {
-      user: {
-        username: user.username,
-        email: user.email,
-        fullname: user.fullname,
-        // Add other fields as needed
-      },
-      message: 'User updated successfully',
-    };
-  }
-
-  async readUserById(id) {
-    const user = await UserModel.findById(id);
-    if (!user) {
-      throw new ResponseError('User not found', 404);
-    }
-    return user;
   }
 }
