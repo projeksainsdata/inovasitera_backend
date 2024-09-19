@@ -53,24 +53,26 @@ export default class UserService {
 
   // search users
   async searchUsers({page, perPage, q, sort, order}) {
-    if (!q) {
-      return await UserModel.find()
-        .select('-password -createdAt -updatedAt -__v')
-        .skip((page - 1) * perPage)
-        .limit(perPage)
-        .sort({[sort]: order});
+    let query = {};
+    if (q) {
+      query = {
+        $or: [
+          {fullname: {$regex: new RegExp(q, 'i')}},
+          {username: {$regex: new RegExp(q, 'i')}},
+          {email: {$regex: new RegExp(q, 'i')}},
+        ],
+      };
     }
-    return await UserModel.find({
-      $or: [
-        {fullname: {$regex: new RegExp(q, 'i')}},
-        {username: {$regex: new RegExp(q, 'i')}},
-        {email: {$regex: new RegExp(q, 'i')}},
-      ],
-    })
+
+    const users = await UserModel.find(query)
       .select('-password -createdAt -updatedAt -__v')
       .skip((page - 1) * perPage)
       .limit(perPage)
       .sort({[sort]: order});
+
+    const count = await UserModel.countDocuments(query);
+
+    return {users, count};
   }
 
   // count search users

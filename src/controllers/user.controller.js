@@ -87,13 +87,13 @@ class UserControllers {
       if (error) {
         throw new ResponseError(error.message, 400);
       }
+      const {users, count} = await this.service.searchUsers(value);
       const pagination = {
         page: req.query.page,
         perPage: req.query.perPage,
-        total: await this.service.countSearchUsers(value.q),
+        total: count,
       };
       // call the service
-      const users = await this.service.searchUsers(value);
       // send the response
       return ResponseApi.success(res, users, pagination);
     } catch (error) {
