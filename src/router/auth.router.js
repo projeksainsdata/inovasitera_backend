@@ -5,6 +5,7 @@ import authMiddleware from '../middlewares/auth.middleware.js'
 export default function () {
   const router = express.Router()
   const controller = new AuthController()
+  
   router.post('/register', controller.register)
   router.post('/login', controller.login)
   router.post('/refresh-token', controller.refreshToken)
@@ -23,6 +24,13 @@ export default function () {
   router.post('/confirm-email/:token', controller.confirmEmail)
 
   router.post('/logout', [authMiddleware], controller.logout)
+
+  router.get('/me', [authMiddleware], controller.me)
+
+  // login with google 
+  router.post('/google', controller.loginWithGoogle)
+
+
 
   return router
 }

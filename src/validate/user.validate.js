@@ -151,10 +151,10 @@ export const userChangePasswordSchema = Joi.object({
 export const userForgotPasswordSchema = Joi.object({
   email: Joi.string().required()
 })
-
 export const userResetPasswordSchema = Joi.object({
-  email: Joi.string().required(),
-  resetPassword: Joi.string().required()
+  token: Joi.string().required(),
+  password: Joi.string().required(),
+  password2: Joi.ref('password')
 })
 
 export const userQuerySchema = Joi.object({

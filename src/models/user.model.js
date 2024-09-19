@@ -1,10 +1,10 @@
-import mongoose from 'mongoose'
-import ROLE from '../enum/role.enum'
+import mongoose from 'mongoose';
+import ROLE from '../enum/role.enum';
 
-const Schema = mongoose.Schema
-const model = mongoose.model
+const Schema = mongoose.Schema;
+const model = mongoose.model;
 
-const profile_imgs_collections_list = ['shapes']
+const profile_imgs_collections_list = ['shapes'];
 
 const profile_imgs_name_list = [
   'ellipse',
@@ -13,35 +13,35 @@ const profile_imgs_name_list = [
   'polygon',
   'polygonFilled',
   'rectangle',
-  'rectangleFilled'
-]
+  'rectangleFilled',
+];
 
 const userSchema = new Schema({
   role: {
     type: String,
     default: ROLE.MEMBER,
-    enum: [ROLE.ADMIN, ROLE.INOVATOR, ROLE.MEMBER]
+    enum: [ROLE.ADMIN, ROLE.INOVATOR, ROLE.MEMBER],
   },
   fullname: {
     type: String,
-    required: true
+    required: true,
   },
   username: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   email: {
     type: String,
-    required: true
+    required: true,
   },
   password: {
     type: String,
-    required: false
+    required: false,
   },
   provider: {
     type: String,
-    default: 'local'
+    default: 'local',
   },
 
   profile: {
@@ -57,59 +57,71 @@ const userSchema = new Schema({
         profile_imgs_name_list[
           Math.floor(Math.random() * profile_imgs_name_list.length)
         ]
-      }`
-    }
+      }`;
+    },
   },
 
   address: {
     type: String,
-    default: ''
+    default: '',
   },
   phonenumber: {
     type: String,
-    default: ''
+    default: '',// make new user
+      
   },
 
   //  password management
   forgotPassword: {
     type: String,
-    default: ''
+    default: '',
   },
   resetPassword: {
     type: String,
-    default: ''
+    default: '',
+  },
+
+  //  email verification
+  emailVerify: {
+    type: String,
+    default: '',
+  },
+  emailVerified: {
+    type: Boolean,
+    default: false,
   },
 
   inovator: {
     unit: {
       type: String,
-      default: ''
+      default: '',
     },
     fields: {
       type: Array,
-      default: []
+      default: [],
     },
     itera_fakultas: {
       type: String,
-      default: ''
+      default: '',
     },
     itera_prodi: {
       type: String,
-      default: ''
-    }
-  }
-})
+      default: '',
+    },
+  },
+});
 
 userSchema.index(
   {
     email: 1,
-    username: 1
+    username: 1,
   },
   {
-    unique: true
-  }
-)
-const UserModel = model('Users', userSchema)
+    unique: true,
+  },
+);
 
-UserModel.createIndexes()
-export default UserModel
+const UserModel = model('Users', userSchema);
+
+UserModel.createIndexes();
+export default UserModel;

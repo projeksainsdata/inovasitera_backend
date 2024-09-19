@@ -1,5 +1,5 @@
 import AuthService from '../services/auth.service.js'
-import ResponseError from '../response/error.response.js'
+import ResponseError from '../responses/error.response.js'
 
 export default function authMiddleware(req, res, next) {
   try {

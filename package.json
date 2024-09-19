@@ -50,6 +50,7 @@
     "@babel/node": "^7.12.17",
     "@babel/runtime": "^7.12.18",
     "@godaddy/terminus": "^4.6.0",
+    "axios": "^1.7.7",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",

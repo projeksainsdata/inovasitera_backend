@@ -5,20 +5,54 @@ export default {
   port: process.env.PORT || 3000,
   env: process.env.NODE_ENV || 'development',
   logs: {
-    level: process.env.LOG_LEVEL || 'silly',
-    file: process.env.LOG_FILE || 'logs/app.log'
+    level: process.env.LOG_LEVEL || "silly",
+    file: process.env.LOG_FILE || "logs/app.log",
+
+    // logs/combined.log
+    combined: {
+      filename: process.env.LOG_COMBINED || "logs/combined.log",
+      maxsize: Number(process.env.LOG_MAX_SIZE) || 10485760,
+      maxFiles: Number(process.env.LOG_COMBINED_FILES) || 5,
+    },
+
+    // logs/error.log
+    error: {
+      filename: process.env.LOG_ERROR || "logs/error.log",
+      maxsize: process.env.LOG_ERROR_MAX_SIZE || 10485760,
+      maxFiles: process.env.LOG_ERROR_FILES || 5,
+    },
+
+    // logs/exceptions.log
+    exceptions: {
+      filename: process.env.LOG_EXCEPTIONS || "logs/exceptions.log",
+      maxsize: process.env.LOG_EXCEPTIONS_MAX_SIZE || 10485760,
+      maxFiles: process.env.LOG_EXCEPTIONS_FILES || 5,
+    },
+
+    // logs/requests.log
+    requests: {
+      filename: process.env.LOG_REQUESTS || "logs/requests.log",
+      maxsize: process.env.LOG_REQUESTS_MAX_SIZE || 10485760,
+      maxFiles: process.env.LOG_REQUESTS_FILES || 5,
+    },
   },
   api: {
     prefix: '/api'
   },
   mongo: {
-    uri: process.env.MONGO_URI || 'mongodb://localhost:27017/test',
+    uri: process.env.MONGO_URI || 'mongodb://localhost:27017/inovasi-itera-test',
     options: {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
       useFindAndModify: false
     }
+  },
+  email: {
+    user: process.env.EMAIL_USER || "test@gmail.com",
+    pass: process.env.EMAIL_PASS || "123456",
+    verifyUrl: process.env.VERIFY_URL || "http://localhost:5173/confirm-email",
+    reseturl: process.env.RESET_URL || "http://localhost:5173/reset-password",
   },
   jwt: {
     secret: process.env.JWT_SECRET || 'secret',

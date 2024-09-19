@@ -1,4 +1,4 @@
-import ResponseError from '../response/error.response.js'
+import ResponseError from '../responses/error.response.js'
 export default function isAdminMiddleware(req, res, next) {
   try {
     const users = req.user
