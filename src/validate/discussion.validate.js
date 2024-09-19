@@ -26,7 +26,6 @@ import Joi from 'joi';
 
 export const discussionSchema = Joi.object({
   inovation_id: Joi.string().required(),
-  user_id: Joi.string().required(),
   content: Joi.string().required(),
   parent_discussion_id: Joi.string().allow(null, ''),
   createdAt: Joi.date().allow(null, ''),
@@ -34,7 +33,6 @@ export const discussionSchema = Joi.object({
 
 export const discussionUpdateSchema = Joi.object({
   inovation_id: Joi.string().required(),
-  user_id: Joi.string().required(),
   content: Joi.string().required(),
   parent_discussion_id: Joi.string().allow(null, ''),
   createdAt: Joi.date().allow(null, ''),
