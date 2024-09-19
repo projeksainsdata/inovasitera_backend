@@ -1,4 +1,4 @@
-import DiscussionService from '../services/discussion.service.js';
+import DiscussionService from '../services/disccussion.service.js';
 import ResponseError from '../responses/error.response.js';
 import ResponseApi from '../responses/api.response.js';
 import * as discussionValidate from '../validate/discussion.validate.js';
