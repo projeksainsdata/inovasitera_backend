@@ -8,11 +8,7 @@ export default function userRouter() {
   const router = express.Router();
   const controller = new userController();
 
-  const userOwnershipMiddleware = createOwnershipMiddleware(
-    User,
-    'id',
-    '_id',
-  );
+  const userOwnershipMiddleware = createOwnershipMiddleware(User, 'id', '_id');
 
   router.get('/', authMiddleware, controller.searchUser);
 

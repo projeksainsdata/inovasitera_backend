@@ -123,8 +123,6 @@ class UserControllers {
 
     return `${username}#${random}`;
   };
-
-  
 }
 
 export default UserControllers;

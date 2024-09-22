@@ -18,14 +18,12 @@ const createOwnershipMiddleware = (
   ownerField = 'user_id',
   customCheck,
 ) => {
-  
   if (!model || !(model.prototype instanceof mongoose.Model)) {
     throw new ResponseError("Invalid 'model' option", 500);
   }
 
   return async (req, res, next) => {
     try {
-      
       const resourceId = req.params[idParam];
 
       if (!resourceId) {

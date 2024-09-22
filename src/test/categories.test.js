@@ -4,7 +4,7 @@ import CategoriesController from '../controllers/categories.controller.js';
 import CategoriesService from '../services/categories.service.js';
 import ResponseApi from '../responses/api.response.js';
 import * as validator from '../validate/categories.validate.js';
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import {describe, it, expect, beforeEach, jest} from '@jest/globals';
 
 jest.mock('../services/categories.service.js');
 jest.mock('../responses/api.response.js');
@@ -28,24 +28,29 @@ describe('CategoriesController', () => {
 
   describe('createCategory', () => {
     it('should create a category', async () => {
-      const category = { name: 'Test Category' };
-      validator.categorySchema.validate.mockReturnValue({ value: category, error: null });
+      const category = {name: 'Test Category'};
+      validator.categorySchema.validate.mockReturnValue({
+        value: category,
+        error: null,
+      });
       CategoriesService.prototype.createCategory.mockResolvedValue(category);
-      ResponseApi.created.mockImplementation((res, data) => res.status(201).json(data));
+      ResponseApi.created.mockImplementation((res, data) =>
+        res.status(201).json(data),
+      );
 
       const res = await request(app).post('/categories').send(category);
 
       expect(res.status).toBe(201);
       expect(res.body).toEqual(category);
     });
-
-  
   });
 
   describe('getAllCategories', () => {
     it('should return all categories', async () => {
-      const categories = [{ name: 'Category 1' }, { name: 'Category 2' }];
-      CategoriesService.prototype.getAllCategories.mockResolvedValue(categories);
+      const categories = [{name: 'Category 1'}, {name: 'Category 2'}];
+      CategoriesService.prototype.getAllCategories.mockResolvedValue(
+        categories,
+      );
       ResponseApi.mockImplementation((res, data) => res.status(200).json(data));
 
       const res = await request(app).get('/categories');
@@ -57,8 +62,11 @@ describe('CategoriesController', () => {
 
   describe('updateCategory', () => {
     it('should update a category', async () => {
-      const category = { name: 'Updated Category' };
-      validator.categoryUpdateSchema.validate.mockReturnValue({ value: category, error: null });
+      const category = {name: 'Updated Category'};
+      validator.categoryUpdateSchema.validate.mockReturnValue({
+        value: category,
+        error: null,
+      });
       CategoriesService.prototype.updateCategory.mockResolvedValue(category);
       ResponseApi.mockImplementation((res, data) => res.status(200).json(data));
 
@@ -67,13 +75,11 @@ describe('CategoriesController', () => {
       expect(res.status).toBe(200);
       expect(res.body).toEqual(category);
     });
-
-
   });
 
   describe('deleteCategory', () => {
     it('should delete a category', async () => {
-      const category = { name: 'Deleted Category' };
+      const category = {name: 'Deleted Category'};
       CategoriesService.prototype.deleteCategory.mockResolvedValue(category);
       ResponseApi.mockImplementation((res, data) => res.status(200).json(data));
 
@@ -82,7 +88,5 @@ describe('CategoriesController', () => {
       expect(res.status).toBe(200);
       expect(res.body).toEqual(category);
     });
-
-    
   });
 });

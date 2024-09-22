@@ -13,7 +13,6 @@ export default function () {
     'id',
     'user_id',
   );
-  
 
   router.post('/', authMiddleware, controller.createDiscussion);
 

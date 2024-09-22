@@ -3,7 +3,7 @@ import express from 'express';
 import UserControllers from '../controllers/user.controller.js';
 import UserServices from '../services/user.service.js';
 import ResponseApi from '../responses/api.response.js';
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import {describe, it, expect, beforeEach, jest} from '@jest/globals';
 
 jest.mock('../services/user.service.js');
 jest.mock('../services/auth.service.js');
@@ -25,12 +25,12 @@ describe('UserControllers', () => {
     jest.clearAllMocks();
   });
 
-
-
   describe('deleteUser', () => {
     it('should delete a user', async () => {
       UserServices.prototype.deleteUser.mockResolvedValue();
-      ResponseApi.success.mockImplementation((res, data) => res.status(200).json(data));
+      ResponseApi.success.mockImplementation((res, data) =>
+        res.status(200).json(data),
+      );
 
       const res = await request(app).delete('/users/1');
 
@@ -39,13 +39,13 @@ describe('UserControllers', () => {
     });
   });
 
-
-
   describe('getUserById', () => {
     it('should return a user by id', async () => {
-      const user = { name: 'User 1' };
+      const user = {name: 'User 1'};
       UserServices.prototype.findById.mockResolvedValue(user);
-      ResponseApi.success.mockImplementation((res, data) => res.status(200).json(data));
+      ResponseApi.success.mockImplementation((res, data) =>
+        res.status(200).json(data),
+      );
 
       const res = await request(app).get('/users/1');
 

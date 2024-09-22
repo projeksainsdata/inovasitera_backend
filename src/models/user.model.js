@@ -91,7 +91,6 @@ const userSchema = new Schema({
   },
 
   inovator: {
-    
     unit: {
       type: String,
       default: '',

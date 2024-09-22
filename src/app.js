@@ -41,14 +41,11 @@ app.use(errorHandler);
 
 const terminus = serverConfig(app, mongoose, server, config);
 
-
-
-
 // if server is not running in test environment then start server
 if (config.env !== 'test') {
-  terminus.startServer()
+  terminus.startServer();
 }
 
 // export app, server, terminus
 
-export {app, server, terminus,mongoose,};
+export {app, server, terminus, mongoose};

@@ -12,5 +12,5 @@ export default function routes(app) {
   app.use('/api/v1/discussions', discussionRouter());
   app.use('/api/v1/ratings', ratingRouter());
   app.use('/api/v1/whitelists', whitelistRouter());
-  app.use("/api/v1/categories", categoriesRouter());
+  app.use('/api/v1/categories', categoriesRouter());
 }
