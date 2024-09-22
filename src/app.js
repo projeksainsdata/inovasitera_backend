@@ -3,7 +3,7 @@ import expressConfig from './application/express.js';
 import config from './config/config.js';
 // import routes
 import routes from './router/index.js';
-import connectionDb from './application/connection.js';
+import connectionDb from './application/databases.js';
 // import server config
 import serverConfig from './application/server.js';
 import errorHandler from './middlewares/error.middleware.js';
@@ -41,9 +41,14 @@ app.use(errorHandler);
 
 const terminus = serverConfig(app, mongoose, server, config);
 
+
+
+
 // if server is not running in test environment then start server
 if (config.env !== 'test') {
-  terminus.startServer();
+  terminus.startServer()
 }
+
+// export app, server, terminus
 
 export {app, server, terminus};

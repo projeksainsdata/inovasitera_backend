@@ -6,10 +6,10 @@ import ratingRouter from './rating.router.js';
 import whitelistRouter from './whitelist.router.js';
 
 export default function routes(app) {
-  app.use('/auth', authRouter());
-  app.use('/users', userRouter());
-  app.use('/inovations', inovationRouter());
-  app.use('/discussions', discussionRouter());
-  app.use('/ratings', ratingRouter());
-  app.use('/whitelists', whitelistRouter());
+  app.use('/api/v1', authRouter());
+  app.use('/api/v1/users', userRouter());
+  app.use('/api/v1/inovations', inovationRouter());
+  app.use('/api/v1/discussions', discussionRouter());
+  app.use('/api/v1/ratings', ratingRouter());
+  app.use('/api/v1/whitelists', whitelistRouter());
 }

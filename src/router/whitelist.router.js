@@ -8,11 +8,11 @@ export default function () {
   const router = express.Router();
   const controller = new WhitelistController();
 
-  const whitelistOwnershipMiddleware = createOwnershipMiddleware({
-    model: WhitelistModel,
-    idParam: 'id',
-    ownerField: 'user_id',
-  });
+  const whitelistOwnershipMiddleware = createOwnershipMiddleware(
+    WhitelistModel,
+    'id',
+    'user_id',
+  );
 
   router.post('/', authMiddleware, controller.createWhitelist);
 

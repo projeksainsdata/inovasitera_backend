@@ -2,17 +2,18 @@ import DiscussionController from '../controllers/discussion.controller.js';
 import express from 'express';
 import authMiddleware from '../middlewares/auth.middleware.js';
 import createOwnershipMiddleware from '../middlewares/isowner.middleware.js';
-import Discussion from '../models/discussion.model';
+import Discussion from '../models/discussion.model.js';
 
 export default function () {
   const router = express.Router();
   const controller = new DiscussionController();
 
-  const discussionOwnershipMiddleware = createOwnershipMiddleware({
-    model: Discussion,
-    idParam: 'id',
-    ownerField: 'user_id',
-  });
+  const discussionOwnershipMiddleware = createOwnershipMiddleware(
+    Discussion,
+    'id',
+    'user_id',
+  );
+  
 
   router.post('/', authMiddleware, controller.createDiscussion);
 

@@ -12,15 +12,20 @@ import ResponseError from '../responses/error.response.js';
  * @param {Function} options.customCheck - Optional custom check function
  * @returns {Function} Express middleware function
  */
-const createOwnershipMiddleware = (options) => {
-  const {model, idParam = 'id', ownerField = 'user_id', customCheck} = options;
-
+const createOwnershipMiddleware = (
+  model,
+  idParam = 'id',
+  ownerField = 'user_id',
+  customCheck,
+) => {
+  
   if (!model || !(model.prototype instanceof mongoose.Model)) {
-    throw new ResponseError('Invalid model provided', 500);
+    throw new ResponseError("Invalid 'model' option", 500);
   }
 
   return async (req, res, next) => {
     try {
+      
       const resourceId = req.params[idParam];
 
       if (!resourceId) {

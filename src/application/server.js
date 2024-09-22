@@ -47,7 +47,6 @@ export default function serverConfig(app, mongoose, serverInit, config) {
 
   function startServer() {
     // start server
-
     // create terminus
     createTerminus(serverInit, {
       signal: 'SIGINT',
@@ -59,12 +58,14 @@ export default function serverConfig(app, mongoose, serverInit, config) {
       beforeShutdown,
       onShutdown,
     }).listen(config.port, () => {
-      logger.info(
+      console.info(
         `Express server listening on http://127.0.0.1:${config.port}/, in %s mode`,
         config.port,
         app.get('env'),
       );
     });
+
+    return serverInit;
   }
 
   return {

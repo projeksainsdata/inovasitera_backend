@@ -8,11 +8,11 @@ export default function () {
   const router = express.Router();
   const controller = new RatingController();
 
-  const ratingOwnershipMiddleware = createOwnershipMiddleware({
-    model: Rating,
-    idParam: 'id',
-    ownerField: 'user_id',
-  });
+  const ratingOwnershipMiddleware = createOwnershipMiddleware(
+    Rating,
+    'id',
+    'user_id',
+  );
 
   router.post('/', authMiddleware, controller.createRating);
 

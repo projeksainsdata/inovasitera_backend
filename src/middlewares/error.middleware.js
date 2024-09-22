@@ -2,7 +2,8 @@
 
 // Path: app\src\middleware\midlleware.error.js
 import ResponseError from '../responses/error.response.js';
-export default function errorHandler(err, req, res) {
+// eslint-disable-next-line no-unused-vars
+export default function errorHandler(err, req, res, next) {
   if (err instanceof ResponseError) {
     return res.status(err.status).json(err.toJson());
   }

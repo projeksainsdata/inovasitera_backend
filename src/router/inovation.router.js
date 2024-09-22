@@ -6,7 +6,7 @@ import roleMiddleware from '../middlewares/role.middleware.js';
 import createOwnershipMiddleware from '../middlewares/isowner.middleware.js';
 import InovationModel from '../models/inovation.model.js';
 
-import ROLE, {ROLE_PERMISSION} from '../enum/role.enum';
+import ROLE, {ROLE_PERMISSION} from '../enum/role.enum.js';
 export default function () {
   const router = express.Router();
   const controller = new InovationController();

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import ROLE from '../enum/role.enum';
+import ROLE from '../enum/role.enum.js';
 
 const Schema = mongoose.Schema;
 const model = mongoose.model;
