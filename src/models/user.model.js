@@ -91,6 +91,7 @@ const userSchema = new Schema({
   },
 
   inovator: {
+    
     unit: {
       type: String,
       default: '',
@@ -106,6 +107,10 @@ const userSchema = new Schema({
     itera_prodi: {
       type: String,
       default: '',
+    },
+    status: {
+      type: String,
+      default: 'pending',
     },
   },
 });

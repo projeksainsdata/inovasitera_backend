@@ -78,12 +78,7 @@ class UserControllers {
   searchUser = async (req, res, next) => {
     try {
       // check pagination req.query.page and req.query.perPage are present or not set default value
-      if (!req.query.page && !req.query.perPage) {
-        req.query.page = 1;
-        req.query.perPage = 10;
-      }
-
-      const {value, error} = userValidate.searchUserSchema.validate(req.query);
+      const {value, error} = userValidate.userQuerySchema.validate(req.query);
       if (error) {
         throw new ResponseError(error.message, 400);
       }

@@ -94,9 +94,7 @@ export const userSchema = Joi.object({
   email: Joi.string().required(),
   password: Joi.string().required(),
   provider: Joi.string().default('local'),
-  profile: Joi.string().default(
-    'https://api.dicebear.com/9.x/avatars/1.svg?seed=1',
-  ),
+  profile: Joi.string(),
   address: Joi.string().default(''),
   phonenumber: Joi.string().default(''),
   forgotPassword: Joi.string().default(''),

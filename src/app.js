@@ -51,4 +51,4 @@ if (config.env !== 'test') {
 
 // export app, server, terminus
 
-export {app, server, terminus};
+export {app, server, terminus,mongoose,};

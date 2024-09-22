@@ -12,9 +12,9 @@ export default class CategoriesController {
     try {
       const {value, error} = validator.categorySchema.validate(req.body);
       if (error) {
+
         throw new ResponseError(error.message, 400);
       }
-
       const category = await this.service.createCategory(value);
       return ResponseApi.created(res, category);
     } catch (error) {
