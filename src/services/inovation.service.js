@@ -4,9 +4,7 @@ import ResponseError from '../responses/error.response.js';
 export default class InovationService {
   createInovation = async (data) => {
     try {
-      return InovationModel.create({
-        data,
-      });
+      return InovationModel.create(data);
     } catch (error) {
       throw new ResponseError(error.message, 400);
     }

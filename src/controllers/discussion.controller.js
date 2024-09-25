@@ -62,9 +62,8 @@ export default class DiscussionController {
 
   getDiscussionByInovation = async (req, res, next) => {
     try {
-      const {value, error} = discussionValidate.discussionIdSchema.validate(
-        req.params,
-      );
+      const {value, error} =
+        discussionValidate.discussionInovationSchema.validate(req.params);
       if (error) {
         throw new ResponseError(error.message, 400);
       }
@@ -104,7 +103,7 @@ export default class DiscussionController {
         throw new ResponseError('id is required', 400);
       }
       const discussion = await this.service.deleteDiscussion(req.params.id);
-      return ResponseApi.success(res, discussion);
+      return ResponseApi.noContent(res, discussion);
     } catch (error) {
       next(error);
     }

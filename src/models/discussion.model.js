@@ -34,12 +34,6 @@ discussionSchema.virtual('replies', {
   foreignField: 'parent_discussion_id',
 });
 
-// when we default is get only the parent discussion is null
-discussionSchema.pre(/^find/, function (next) {
-  this.find({parent_discussion_id: null});
-  next();
-});
-
 const Discussion = model('Discussions', discussionSchema);
 
 export default Discussion;

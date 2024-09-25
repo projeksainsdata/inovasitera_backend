@@ -31,19 +31,5 @@ export default function () {
     controller.deleteRating,
   );
 
-  router.put(
-    '/:id',
-    authMiddleware,
-    ratingOwnershipMiddleware,
-    controller.updateRating,
-  );
-
-  router.patch(
-    '/:id',
-    authMiddleware,
-    ratingOwnershipMiddleware,
-    controller.updateRating,
-  );
-
   return router;
 }

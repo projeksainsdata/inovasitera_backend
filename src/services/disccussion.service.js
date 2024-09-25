@@ -19,7 +19,9 @@ export default class DiscussionService {
   }
 
   async getDiscussionByInovation(inovation_id) {
-    return await Discussion.find({inovation_id: inovation_id});
+    return await Discussion.find({inovation_id}).populate(
+      'parent_discussion_id',
+    );
   }
 
   async updateDiscussion(id, discussion) {

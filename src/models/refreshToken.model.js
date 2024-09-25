@@ -5,10 +5,16 @@ import config from '../config/config.js';
 
 // this is the refresh token model for refresh token jwt token
 const RefreshTokenSchema = new mongoose.Schema({
-  token: String,
+  // not using _id because we want to use token as the primary key
+
+  token: {
+    type: String,
+    required: true,
+    index: true,
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'users',
+    ref: 'Users',
   },
   expiryDate: {
     type: Date,

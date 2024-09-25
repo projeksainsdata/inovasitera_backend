@@ -10,17 +10,15 @@ export default class WhitelistController {
 
   createWhitelist = async (req, res, next) => {
     try {
-      const {value, error} = whitelistValidate.whitelistSchema.validate(
-        req.body,
-      );
+      const {value, error} = whitelistValidate.whitelistSchema.validate({
+        ...req.body,
+        user_id: req.user._id,
+      });
       if (error) {
         throw new ResponseError(error.message, 400);
       }
 
-      const whitelist = await this.service.createWhitelist({
-        ...value,
-        user_id: req.user._id,
-      });
+      const whitelist = await this.service.createWhitelist(value);
 
       return ResponseApi.success(res, whitelist);
     } catch (error) {
@@ -52,27 +50,7 @@ export default class WhitelistController {
 
       const whitelist = await this.service.deleteWhitelist(value.id);
 
-      return ResponseApi.success(res, whitelist);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  updateWhitelist = async (req, res, next) => {
-    try {
-      const {value, error} = whitelistValidate.whitelistUpdateSchema.validate(
-        req.body,
-      );
-      if (error) {
-        throw new ResponseError(error.message, 400);
-      }
-
-      const whitelist = await this.service.updateWhitelist(
-        req.params.id,
-        value,
-      );
-
-      return ResponseApi.success(res, whitelist);
+      return ResponseApi.noContent(res, whitelist);
     } catch (error) {
       next(error);
     }

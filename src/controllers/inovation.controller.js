@@ -8,10 +8,16 @@ export default class InovationController {
 
   createInovation = async (req, res, next) => {
     try {
-      const {value, error} = validator.inovationIdSchema.validate(req.body);
+      const user_id = req.user._id;
+      const {value, error} = validator.inovationSchema.validate({
+        ...req.body,
+        user_id,
+      });
       if (error) {
         throw new ResponseError(error.message, 400);
       }
+
+      console.log(value);
 
       const inovation = await this.services.createInovation(value);
       return ResponseApi.success(res, inovation);

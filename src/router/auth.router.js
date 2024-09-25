@@ -11,7 +11,7 @@ export default function () {
   router.post('/refresh-token', controller.refreshToken);
 
   router.post('/forgot-password', controller.forgotPassword);
-  router.post('/reset-password', controller.resetPassword);
+  router.post('/reset-password/:token', controller.resetPassword);
 
   router.post(
     '/verify-email',

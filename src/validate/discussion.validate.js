@@ -32,14 +32,15 @@ export const discussionSchema = Joi.object({
 });
 
 export const discussionUpdateSchema = Joi.object({
-  inovation_id: Joi.string().required(),
   content: Joi.string().required(),
-  parent_discussion_id: Joi.string().allow(null, ''),
-  createdAt: Joi.date().allow(null, ''),
 });
 
 export const discussionIdSchema = Joi.object({
   id: Joi.string().required(),
+});
+
+export const discussionInovationSchema = Joi.object({
+  inovation_id: Joi.string().required(),
 });
 
 export const discussionQuerySchema = Joi.object({

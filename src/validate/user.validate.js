@@ -150,7 +150,6 @@ export const userForgotPasswordSchema = Joi.object({
   email: Joi.string().required(),
 });
 export const userResetPasswordSchema = Joi.object({
-  token: Joi.string().required(),
   password: Joi.string().required(),
   password2: Joi.ref('password'),
 });

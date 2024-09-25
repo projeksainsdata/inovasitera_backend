@@ -20,6 +20,12 @@ export default function userRouter() {
     userOwnershipMiddleware,
     controller.updateUser,
   );
+  router.patch(
+    '/:id',
+    authMiddleware,
+    userOwnershipMiddleware,
+    controller.updateUser,
+  );
 
   router.delete(
     '/:id',

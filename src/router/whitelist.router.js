@@ -25,19 +25,5 @@ export default function () {
     controller.deleteWhitelist,
   );
 
-  router.put(
-    '/:id',
-    authMiddleware,
-    whitelistOwnershipMiddleware,
-    controller.updateWhitelist,
-  );
-
-  router.patch(
-    '/:id',
-    authMiddleware,
-    whitelistOwnershipMiddleware,
-    controller.updateWhitelist,
-  );
-
   return router;
 }

@@ -57,8 +57,8 @@ export default {
   },
   jwt: {
     secret: process.env.JWT_SECRET || 'secret',
-    expiration: process.env.JWT_EXPIRATION || '1d',
-    refreshExpiration: process.env.JWT_REFRESH_EXPIRATION || '7d',
+    expiration: process.env.JWT_EXPIRATION || '360000',
+    refreshExpiration: process.env.JWT_REFRESH_EXPIRATION || '8640000',
   },
   google: {
     client_id: process.env.GOOGLE_CLIENT_ID || 'client_id',
@@ -72,5 +72,9 @@ export default {
     port: process.env.FRONTEND_PORT || 5000,
     homePage: process.env.FRONTEND_HOME_PAGE || 'http://localhost:5000',
     domain: process.env.FRONTEND_DOMAIN || 'localhost',
+  },
+
+  bcrypt: {
+    saltRounds: process.env.BCRYPT_SALT_ROUNDS || 10,
   },
 };

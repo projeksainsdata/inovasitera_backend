@@ -17,14 +17,14 @@ export default class CategoriesController {
       const category = await this.service.createCategory(value);
       return ResponseApi.created(res, category);
     } catch (error) {
-      return next(error);
+      next(error);
     }
   };
 
   getAllCategories = async (req, res, next) => {
     try {
       const categories = await this.service.getAllCategories();
-      return ResponseApi(res, categories);
+      return ResponseApi.success(res, categories);
     } catch (error) {
       return next(error);
     }
@@ -39,7 +39,7 @@ export default class CategoriesController {
       if (!category) {
         throw new ResponseError('Category not found', 404);
       }
-      return ResponseApi(res, category);
+      return ResponseApi.success(res, category);
     } catch (error) {
       return next(error);
     }
@@ -53,7 +53,7 @@ export default class CategoriesController {
       }
 
       const category = await this.service.updateCategory(req.params.id, value);
-      return ResponseApi(res, category);
+      return ResponseApi.success(res, category);
     } catch (error) {
       return next(error);
     }
@@ -65,7 +65,20 @@ export default class CategoriesController {
         throw new ResponseError('Category not found', 404);
       }
       const category = await this.service.deleteCategory(req.params.id);
-      return ResponseApi(res, category);
+      return ResponseApi.noContent(res, category);
+    } catch (error) {
+      return next(error);
+    }
+  };
+
+  searchCategories = async (req, res, next) => {
+    try {
+      const {value, error} = validator.categoryQuerySchema.validate(req.query);
+      if (error) {
+        throw new ResponseError(error.message, 400);
+      }
+      const categories = await this.service.searchCategories(value);
+      return ResponseApi.success(res, categories);
     } catch (error) {
       return next(error);
     }

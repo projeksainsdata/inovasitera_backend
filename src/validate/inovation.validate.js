@@ -82,7 +82,6 @@ export const inovationUpdateSchema = Joi.object({
   title: Joi.string().required(),
   description: Joi.string().optional(),
   category: Joi.string().required(),
-  user_id: Joi.string().required(),
   status: Joi.string().optional(),
   Image: Joi.string().optional(),
   adventage: Joi.string().optional(),

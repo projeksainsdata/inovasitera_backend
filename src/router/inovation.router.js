@@ -16,6 +16,8 @@ export default function () {
     'id',
     'user_id',
   );
+  router.get('/', authMiddleware, controller.searchInovation);
+  router.get('/:id', authMiddleware, controller.getInovation);
 
   router.post(
     '/',
@@ -24,9 +26,15 @@ export default function () {
     controller.createInovation,
   );
 
-  router.get('/:id', authMiddleware, controller.getInovation);
-
   router.put(
+    '/:id',
+    authMiddleware,
+    roleMiddleware(ROLE_PERMISSION[ROLE.INOVATOR]),
+    inovationOwnershipMiddleware,
+    controller.updateInovation,
+  );
+
+  router.patch(
     '/:id',
     authMiddleware,
     roleMiddleware(ROLE_PERMISSION[ROLE.INOVATOR]),

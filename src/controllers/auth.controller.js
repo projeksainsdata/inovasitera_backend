@@ -6,6 +6,7 @@ import * as validate from '../validate/user.validate.js';
 import nodemailer from 'nodemailer';
 import config from '../config/config.js';
 import emailVerifyTemplate from '../helpers/emailTemplate.js';
+import generateUsername from '../helpers/generateUsername.js';
 
 export default class AuthController {
   constructor() {
@@ -36,7 +37,7 @@ export default class AuthController {
       // hash password
       value.password = await this.services.hashPassword(value.password);
       // create user
-      value.username = await this.generateUsername(value.email);
+      value.username = await generateUsername(value.email);
 
       const newUser = await this.userService.createUser(value);
       return ResponseApi.created(res, newUser);
@@ -95,7 +96,6 @@ export default class AuthController {
       if (!refreshToken) {
         throw new ResponseError('Refresh token is required', 400);
       }
-
       // find refresh token
       const token = await this.services.findRefreshToken(refreshToken);
       if (!token) {
@@ -199,10 +199,11 @@ export default class AuthController {
       const {value, error} = validate.userResetPasswordSchema.validate(
         req.body,
       );
+      const {token} = req.params;
       if (error) {
         throw new ResponseError(error.message, 400);
       }
-      const {token, password} = value;
+      const {password} = value;
 
       // get reset token
       const user = await this.services.getAndVerifyResetPasswordToken(token);

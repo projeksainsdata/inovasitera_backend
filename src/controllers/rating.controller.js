@@ -10,14 +10,15 @@ export default class RatingController {
 
   createRating = async (req, res, next) => {
     try {
-      const {value, error} = ratingValidate.ratingSchema.validate(req.body);
+      const user_id = req.user._id;
+      const {value, error} = ratingValidate.ratingSchema.validate({
+        ...req.body,
+        user_id,
+      });
       if (error) {
         throw new ResponseError(error.message, 400);
       }
-      const rating = await this.service.createRating({
-        ...value,
-        user_id: req.user._id,
-      });
+      const rating = await this.service.createRating(value);
 
       return ResponseApi.success(res, rating);
     } catch (error) {
@@ -63,7 +64,7 @@ export default class RatingController {
 
       await this.service.deleteRating(value.id);
 
-      return ResponseApi.success(res, 'Rating deleted');
+      return ResponseApi.noContent(res, 'Rating deleted');
     } catch (error) {
       next(error);
     }

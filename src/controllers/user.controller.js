@@ -54,10 +54,7 @@ class UserControllers {
       // call new updated user
       const userNew = await this.service.findById(user_params._id);
 
-      const token = await this.authService.createAccessAndRefreshToken({
-        user: userNew,
-      });
-      return ResponseApi.success(res, {user: userNew, token});
+      return ResponseApi.success(res, userNew);
     } catch (error) {
       return next(error);
     }
