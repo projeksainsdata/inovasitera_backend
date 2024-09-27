@@ -69,6 +69,14 @@ const userSchema = new Schema({
     type: String,
     default: '', // make new user
   },
+  dateOfBirth: {
+    type: String,
+    default: '',
+  },
+  gender: {
+    type: String,
+    default: '',
+  },
 
   //  password management
   forgotPassword: {
@@ -99,11 +107,11 @@ const userSchema = new Schema({
       type: Array,
       default: [],
     },
-    itera_fakultas: {
+    fakultas: {
       type: String,
       default: '',
     },
-    itera_prodi: {
+    prodi: {
       type: String,
       default: '',
     },

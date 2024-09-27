@@ -1,7 +1,7 @@
 const ROLE = {
   MEMBER: 'member',
   ADMIN: 'admin',
-  INOVATOR: 'inovator',
+  INOVATOR: 'innovator',
 };
 
 export const ROLE_LIST = Object.values(ROLE);
@@ -9,7 +9,7 @@ export const ROLE_LIST = Object.values(ROLE);
 export const ROLE_MAP = {
   [ROLE.MEMBER]: 'Member',
   [ROLE.ADMIN]: 'Admin',
-  [ROLE.INOVATOR]: 'Inovator',
+  [ROLE.INOVATOR]: 'innovator',
 };
 export const ROLE_PERMISSION = {
   [ROLE.ADMIN]: [ROLE.ADMIN],

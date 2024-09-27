@@ -88,7 +88,7 @@ import Joi from 'joi';
 // SCHEMA users model
 
 export const userSchema = Joi.object({
-  role: Joi.string().default('member').valid('admin', 'inovator', 'member'),
+  role: Joi.string().default('member').valid('innovator', 'member'),
   fullname: Joi.string().required(),
   username: Joi.string().required(),
   email: Joi.string().required(),
@@ -97,6 +97,8 @@ export const userSchema = Joi.object({
   profile: Joi.string(),
   address: Joi.string().default(''),
   phonenumber: Joi.string().default(''),
+  gender: Joi.string().default(''),
+  dateOfBirth: Joi.string().default(''),
   forgotPassword: Joi.string().default(''),
   resetPassword: Joi.string().default(''),
   inovator: Joi.object({
@@ -108,7 +110,7 @@ export const userSchema = Joi.object({
 });
 
 export const userUpdateSchema = Joi.object({
-  role: Joi.string().valid('admin', 'inovator', 'member'),
+  role: Joi.string().valid('inovator', 'member'),
   fullname: Joi.string(),
   username: Joi.string(),
   email: Joi.string(),
@@ -125,6 +127,8 @@ export const userUpdateSchema = Joi.object({
     itera_fakultas: Joi.string(),
     itera_prodi: Joi.string(),
   }),
+  gender: Joi.string(),
+  dateOfBirth: Joi.string(),
 });
 
 export const userLoginSchema = Joi.object({
@@ -133,9 +137,26 @@ export const userLoginSchema = Joi.object({
 });
 
 export const userRegisterSchema = Joi.object({
+  // role: string;
+  // fullname: string;
+  // username: string;
+  // email: string;
+  // fakultas?: string | undefined;
+  // prodi?: string | undefined;
+  // "inovator.fakultas"?: string | undefined;
+  // "inovator.prodi"?: string | undefined;
+  // password: string;
+  // confirmPassword: string;
+
+  role: Joi.string().valid('innovator', 'member').required(),
   fullname: Joi.string().required(),
   username: Joi.string().required(),
   email: Joi.string().required(),
+  gender: Joi.string(),
+  dateOfBirth: Joi.string(),
+  phonenumber: Joi.string(),
+  'inovator.fakultas': Joi.string(),
+  'inovator.prodi': Joi.string(),
   password: Joi.string().required(),
   confirmPassword: Joi.ref('password'),
 });
