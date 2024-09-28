@@ -43,7 +43,9 @@ export default function expressConfig(app) {
     points: 20,
     duration: 1,
   });
-
+  // create root path
+  const rootPath = process.cwd();
+  app.use('/uploads', express.static(`${rootPath}/${config.storage.dir}`));
   app.use((req, res, next) => {
     rateLimiter
       .consume(req.ip)

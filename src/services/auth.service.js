@@ -49,6 +49,7 @@ export default class AuthService {
       if (error.name === 'TokenExpiredError') {
         throw ResponseError.unauthorized('Token expired');
       }
+
       throw ResponseError.unauthorized('Invalid token');
     }
   }
@@ -143,7 +144,7 @@ export default class AuthService {
       throw new ResponseError('Email verify token not found', 404);
     }
     // check if token is valid
-    if (this.verify(token)) {
+    if (!this.verify(token)) {
       throw new ResponseError('Email verify token is invalid', 400);
     }
     return user;
@@ -175,7 +176,7 @@ export default class AuthService {
       throw new ResponseError('Reset password token not found', 404);
     }
     // check if token is valid
-    if (this.verify(token)) {
+    if (!this.verify(token)) {
       throw new ResponseError('Reset password token is invalid', 400);
     }
     return user;

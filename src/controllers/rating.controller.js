@@ -1,14 +1,13 @@
-import RatingService from '../services/rating.service.js';
 import ResponseError from '../responses/error.response.js';
 import ResponseApi from '../responses/api.response.js';
 import * as ratingValidate from '../validate/rating.validate.js';
+import InovationService from '../services/inovation.service.js';
 
 export default class RatingController {
   constructor() {
-    this.service = new RatingService();
+    this.service = new InovationService();
   }
-
-  createRating = async (req, res, next) => {
+  async createRating(req, res, next) {
     try {
       const user_id = req.user._id;
       const {value, error} = ratingValidate.ratingSchema.validate({
@@ -18,15 +17,15 @@ export default class RatingController {
       if (error) {
         throw new ResponseError(error.message, 400);
       }
-      const rating = await this.service.createRating(value);
+      const rating = await this.service.createRatingInovation(value);
 
       return ResponseApi.success(res, rating);
     } catch (error) {
       next(error);
     }
-  };
+  }
 
-  getRatingByUserId = async (req, res, next) => {
+  async getRatingByUserId(req, res, next) {
     try {
       if (!req.user._id) {
         throw new ResponseError('User not found', 404);
@@ -37,9 +36,9 @@ export default class RatingController {
     } catch (error) {
       next(error);
     }
-  };
+  }
 
-  getRatingByInovation = async (req, res, next) => {
+  async getRatingByInovation(req, res, next) {
     try {
       if (!req.params.inovation_id) {
         throw new ResponseError('Inovation not found', 404);
@@ -53,37 +52,20 @@ export default class RatingController {
     } catch (error) {
       next(error);
     }
-  };
+  }
 
-  deleteRating = async (req, res, next) => {
+  async deleteRating(req, res, next) {
     try {
       const {value, error} = ratingValidate.ratingIdSchema.validate(req.params);
       if (error) {
         throw new ResponseError(error.message, 400);
       }
 
-      await this.service.deleteRating(value.id);
+      await this.service.deleteRatingbyRating_id(value.id);
 
       return ResponseApi.noContent(res, 'Rating deleted');
     } catch (error) {
       next(error);
     }
-  };
-
-  updateRating = async (req, res, next) => {
-    try {
-      const {value, error} = ratingValidate.ratingUpdateSchema.validate(
-        req.body,
-      );
-      if (error) {
-        throw new ResponseError(error.message, 400);
-      }
-
-      const rating = await this.service.updateRating(req.params.id, value);
-
-      return ResponseApi.success(res, rating);
-    } catch (error) {
-      next(error);
-    }
-  };
+  }
 }

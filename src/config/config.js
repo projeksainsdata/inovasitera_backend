@@ -77,4 +77,8 @@ export default {
   bcrypt: {
     saltRounds: process.env.BCRYPT_SALT_ROUNDS || 10,
   },
+
+  storage: {
+    dir: process.env.STORAGE_DIR || 'uploads',
+  },
 };

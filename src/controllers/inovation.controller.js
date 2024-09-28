@@ -80,8 +80,8 @@ export default class InovationController {
 
       const {inovations, count} = await this.services.searchInovation(value);
       const pagination = {
-        page: req.query.page,
-        perPage: req.query.perPage,
+        page: Number(req.query.page) || 1,
+        perPage: Number(req.query.perPage) || 10,
         total: count,
       };
       return ResponseApi.success(res, inovations, pagination);
