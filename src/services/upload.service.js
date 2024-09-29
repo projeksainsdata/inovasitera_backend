@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import fs from 'fs/promises';
 import path from 'path';
-import {v4 as uuidv4} from 'uuid';
 import crypto from 'crypto';
+import uuid from '../utils/uuid.js';
 
 export const generateUploadToken = (userId, fileType, maxSizeBytes) => {
   const tokenId = crypto.randomBytes(16).toString('hex');
@@ -69,7 +69,7 @@ class StorageService {
 
 export const processUpload = async (file) => {
   const fileExtension = path.extname(file.originalname);
-  const fileName = `${uuidv4()}${fileExtension}`;
+  const fileName = `${uuid()}${fileExtension}`;
 
   const filePath = await storageService.storeFile(file, fileName);
   const fileUrl = storageService.getFileUrl(fileName);

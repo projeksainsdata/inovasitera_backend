@@ -24,7 +24,7 @@ const FilesMetaSchema = new Schema(
       type: String,
       required: true,
     },
-    userId: {
+    user_id: {
       type: Schema.Types.ObjectId,
       ref: 'Users',
     },

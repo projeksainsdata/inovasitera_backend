@@ -38,6 +38,7 @@ export default {
   },
   api: {
     prefix: '/api',
+    baseUrl: process.env.BASE_URL || 'http://localhost:3001',
   },
   mongo: {
     uri:
@@ -80,5 +81,12 @@ export default {
 
   storage: {
     dir: process.env.STORAGE_DIR || 'uploads',
+  },
+
+  upload: {
+    maxSize: process.env.UPLOAD_MAX_SIZE || 10485760,
+    maxFiles: process.env.UPLOAD_MAX_FILES || 5,
+    uploadUrl:
+      process.env.UPLOAD_URL || 'http://localhost:3001/api/v1/uploads/',
   },
 };
