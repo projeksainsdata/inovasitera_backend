@@ -9,7 +9,6 @@ import cookieParser from 'cookie-parser';
 
 import config from '../config/config.js';
 import ENVIROMENT from '../enum/environment.enum.js';
-
 export default function expressConfig(app) {
   // setup express configuration here
   app.use(
@@ -30,12 +29,16 @@ export default function expressConfig(app) {
   // setup session
 
   // cors
-  app.use(
-    cors({
-      origin: config.frontend.url, // allow to server to accept request from different origin
-      credentials: true, // enable set cookie
-    }),
-  );
+  app.use(cors());
+
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept',
+    );
+    next();
+  });
   // helmet
   app.use(helmet({}));
   // rate limiter
@@ -43,9 +46,8 @@ export default function expressConfig(app) {
     points: 20,
     duration: 1,
   });
-  // create root path
-  const rootPath = process.cwd();
-  app.use('/uploads', express.static(`${rootPath}/${config.storage.dir}`));
+
+  app.use('/uploads', express.static(config.storage.dir));
   app.use((req, res, next) => {
     rateLimiter
       .consume(req.ip)

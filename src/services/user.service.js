@@ -2,6 +2,8 @@ import UserModel from '../models/user.model.js';
 import RefreshToken from '../models/refreshToken.model.js';
 import ResponseError from '../responses/error.response.js';
 
+import {MongooseAggregationBuilder} from '../utils/buildQuery.js';
+
 export default class UserService {
   async createUser(user) {
     try {
@@ -52,29 +54,44 @@ export default class UserService {
   }
 
   // search users
-  async searchUsers({page, perPage, q, sort, order}) {
-    let query = {};
+  async searchUsers({page, perPage, q, sort, order, role}) {
+    const queryBuilder = new MongooseAggregationBuilder(UserModel);
+
     if (q) {
-      query = {
+      queryBuilder.addSearchQuery({
         $or: [
-          {fullname: {$regex: new RegExp(q, 'i')}},
-          {username: {$regex: new RegExp(q, 'i')}},
-          {email: {$regex: new RegExp(q, 'i')}},
+          {field: 'fullname', value: q},
+          {field: 'username', value: q},
+          {field: 'email', value: q},
         ],
-      };
+      });
     }
 
-    const users = await UserModel.find(query)
-      .select('-password -createdAt -updatedAt -__v')
-      .skip((page - 1) * perPage)
-      .limit(perPage)
-      .sort({[sort]: order});
+    if (role) {
+      queryBuilder.addSearchQuery({role: role});
+    }
 
-    const count = await UserModel.countDocuments(query);
+    queryBuilder
+      .sort(sort, order)
+      .paginate(page, perPage)
+      .selectFields({
+        fullname: 1,
+        username: 1,
+        email: 1,
+        role: 1,
+        createdAt: 1,
+        _id: 1,
+        provider: 1,
+        inovator: {
+          fakultas: 1,
+          prodi: 1,
+        },
+      });
 
-    return {users, count};
+    const {results, count} = await queryBuilder.execute();
+
+    return {users: results, count};
   }
-
   // count search users
   async countSearchUsers(query) {
     return await UserModel.countDocuments({

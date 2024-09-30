@@ -18,8 +18,6 @@ export default function () {
   router.post('/', authMiddleware, controller.upload);
   router.post('/token', authMiddleware, controller.generateUploadToken);
 
-  router.post('/batch', authMiddleware, controller.uploadBatch);
-
   router.delete(
     '/:id',
     authMiddleware,

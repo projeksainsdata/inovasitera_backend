@@ -79,17 +79,17 @@ export const inovationSchema = Joi.object({
 });
 
 export const inovationUpdateSchema = Joi.object({
-  title: Joi.string().required(),
-  description: Joi.string().optional(),
-  category: Joi.string().required(),
-  status: Joi.string().optional(),
-  Image: Joi.string().optional(),
-  adventage: Joi.string().optional(),
-  status_paten: Joi.string().optional(),
-  score_tkt: Joi.string().optional(),
-  invesment_value: Joi.string().optional(),
-  collaboration: Joi.array().optional(),
-  collaboration_details: Joi.string().optional(),
+  title: Joi.string().allow('', null),
+  description: Joi.string().allow('', null),
+  category: Joi.string().allow('', null),
+  status: Joi.string().allow('', null),
+  Image: Joi.string().allow('', null),
+  adventage: Joi.string().allow('', null),
+  status_paten: Joi.string().allow('', null),
+  score_tkt: Joi.string().allow('', null),
+  invesment_value: Joi.string().allow('', null),
+  collaboration: Joi.array(),
+  collaboration_details: Joi.string().allow('', null),
 });
 
 export const inovationIdSchema = Joi.object({
@@ -101,6 +101,16 @@ export const inovationQuerySchema = Joi.object({
   perPage: Joi.number().default(10),
   q: Joi.string().allow(null, ''),
   'category.name': Joi.string().allow(null, ''),
+  sort: Joi.string().default('createdAt'),
+  order: Joi.string().default('desc'),
+});
+
+export const inovationAdminQuerySchema = Joi.object({
+  page: Joi.number().default(1),
+  perPage: Joi.number().default(10),
+  q: Joi.string().allow(null, ''),
+  category: Joi.string().allow(null, ''),
+  status: Joi.string().allow(null, ''),
   sort: Joi.string().default('createdAt'),
   order: Joi.string().default('desc'),
 });

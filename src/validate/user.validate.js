@@ -114,21 +114,21 @@ export const userUpdateSchema = Joi.object({
   fullname: Joi.string(),
   username: Joi.string(),
   email: Joi.string(),
-  password: Joi.string(),
+  password: Joi.string().allow(''),
   provider: Joi.string(),
   profile: Joi.string(),
-  address: Joi.string(),
-  phonenumber: Joi.string(),
-  forgotPassword: Joi.string(),
-  resetPassword: Joi.string(),
+  address: Joi.string().allow(''),
+  phonenumber: Joi.string().allow(''),
+  forgotPassword: Joi.string().allow(''),
+  resetPassword: Joi.string().allow(''),
   inovator: Joi.object({
-    unit: Joi.string(),
+    unit: Joi.string().allow(''),
     fields: Joi.array(),
-    itera_fakultas: Joi.string(),
-    itera_prodi: Joi.string(),
+    itera_fakultas: Joi.string().allow(''),
+    itera_prodi: Joi.string().allow(''),
   }),
-  gender: Joi.string(),
-  dateOfBirth: Joi.string(),
+  gender: Joi.string().allow(''),
+  dateOfBirth: Joi.string().allow(''),
 });
 
 export const userLoginSchema = Joi.object({
@@ -148,7 +148,7 @@ export const userRegisterSchema = Joi.object({
   // password: string;
   // confirmPassword: string;
 
-  role: Joi.string().valid('innovator', 'member').required(),
+  role: Joi.string().valid('innovator', 'member').default('member'),
   fullname: Joi.string().required(),
   username: Joi.string().required(),
   email: Joi.string().required(),
@@ -179,6 +179,7 @@ export const userQuerySchema = Joi.object({
   page: Joi.number().default(1),
   perPage: Joi.number().default(10),
   q: Joi.string().allow(''),
+  role: Joi.string().valid('inovator', 'member', 'admin').allow(''),
   sort: Joi.string().default('createdAt'),
   order: Joi.string().default('desc'),
 });

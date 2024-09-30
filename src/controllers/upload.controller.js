@@ -1,26 +1,32 @@
 import {
   validateAndConsumeUploadToken,
-  processUpload,
   storageService,
+  generateUploadToken as generateUploadTokenService,
 } from '../services/upload.service.js';
 import FilesMeta from '../models/files.model.js';
 import ResponseError from '../responses/error.response.js';
 import ResponseApi from '../responses/api.response.js';
 import multer from 'multer';
 import config from '../config/config.js';
-export const upload = multer({
-  storage: multer.memoryStorage(),
+import {promisify} from 'util';
+import {URL} from 'url';
 
-  limits: {fileSize: 1024 * 1024 * 4},
+const createMulterMiddleware = (fileSizeLimit) => {
+  return multer({
+    storage: multer.diskStorage({
+      destination: (req, file, cb) => {
+        cb(null, 'storage');
+      },
+      filename: (req, file, cb) => {
+        // Generate a unique file name with timestamp and random number appended with end with extension using mimetype
+        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}.${file.mimetype.split('/')[1]}`;
+        cb(null, uniqueSuffix);
+      },
+    }),
 
-  fileFilter: (req, file, cb) => {
-    // only accept image files
-    if (!file.mimetype.startsWith('image')) {
-      return cb(new ResponseError('Only image files are allowed', 400));
-    }
-    cb(null, true);
-  },
-});
+    limits: {fileSize: fileSizeLimit},
+  });
+};
 
 export default class UploadController {
   constructor() {
@@ -30,24 +36,36 @@ export default class UploadController {
   generateUploadToken = async (req, res, next) => {
     try {
       const user = req.user;
-      // userId, fileType, maxSizeBytes
+
       const {fileType, maxSizeBytes} = req.body;
+
+      // Validate input
       if (!fileType) {
         throw new ResponseError('File type is required', 400);
       }
 
-      if (!maxSizeBytes) {
-        throw new ResponseError('Max size bytes is required', 400);
+      if (
+        !maxSizeBytes ||
+        typeof maxSizeBytes !== 'number' ||
+        maxSizeBytes <= 0 ||
+        maxSizeBytes > config.upload.maxFileSize
+      ) {
+        throw new ResponseError('Invalid max size bytes', 400);
       }
 
-      const uploadToken = await this.storageService.generateUploadToken(
+      // Generate upload token
+      const uploadToken = await generateUploadTokenService(
         user.id,
         fileType,
         maxSizeBytes,
       );
+
+      const uploadUrl = new URL('/api/v1/uploads', config.api.baseUrl);
+      uploadUrl.searchParams.append('token', uploadToken);
+
       return ResponseApi.success(res, {
         token: uploadToken,
-        url: config.api.baseUrl + 'api/v1/upload?token=' + uploadToken,
+        url: uploadUrl.href,
       });
     } catch (error) {
       next(error);
@@ -56,34 +74,41 @@ export default class UploadController {
 
   upload = async (req, res, next) => {
     try {
-      // get token from url
       const token = req.query.token;
-      const tokenData = validateAndConsumeUploadToken(token);
-      if (!tokenData) {
-        throw new ResponseError('Invalid upload token', 403);
-      }
-      // Validate file type and size
-      if (req.file.mimetype !== tokenData.fileType) {
-        throw new ResponseError('Invalid file type', 400);
-      }
-      if (req.file.size > tokenData.maxSizeBytes) {
-        throw new ResponseError('File size exceeded', 400);
+
+      if (!token) {
+        throw new ResponseError('Upload token is required', 400);
       }
 
-      const {fileName, filePath, fileUrl} = await processUpload(req.file);
+      const tokenData = await validateAndConsumeUploadToken(token);
+      if (!tokenData) {
+        throw new ResponseError('Invalid or expired upload token', 403);
+      }
+
+      const multerMiddleware = createMulterMiddleware(
+        tokenData.maxSizeBytes * 1024,
+      );
+
+      await promisify(multerMiddleware.single('image'))(req, res);
+
+      if (!req.file) {
+        throw new ResponseError('File is required', 400);
+      }
+
+      const fileName = req.file.filename;
+      const filePath = req.file.path;
+      const fileUrl = this.storageService.getFileUrl(fileName);
       // Store metadata in database
-      // This is just a placeholder. You'd typically use your Mongoose model here.
       const metadata = {
         fileName,
         filePath,
         fileUrl,
-        userId: req.user.id, // Assuming you have user info from auth middleware
+        userId: tokenData.userId,
         uploadedAt: new Date(),
       };
-      // Save metadata to database
       await FilesMeta.create(metadata);
 
-      return ResponseApi.created(res, {fileName, fileUrl, filePath});
+      return ResponseApi.created(res, {fileName, fileUrl});
     } catch (error) {
       next(error);
     }
@@ -93,26 +118,42 @@ export default class UploadController {
     try {
       const uploadToken = req.headers['x-upload-token'];
 
-      if (!validateAndConsumeUploadToken(uploadToken)) {
-        throw new ResponseError('Invalid upload token', 403);
+      if (!uploadToken) {
+        throw new ResponseError('Upload token is required', 400);
       }
 
-      const files = req.files;
+      const tokenData = await validateAndConsumeUploadToken(uploadToken);
+      if (!tokenData) {
+        throw new ResponseError('Invalid or expired upload token', 403);
+      }
+
+      const multerMiddleware = createMulterMiddleware(
+        tokenData.maxSizeBytes,
+        tokenData.fileType,
+      );
+
+      await promisify(multerMiddleware.array('images', config.upload.maxFiles))(
+        req,
+        res,
+      );
+
+      if (!req.files || req.files.length === 0) {
+        throw new ResponseError('At least one file is required', 400);
+      }
 
       const uploadedFiles = [];
-
-      for (const file of files) {
-        const {fileName, filePath, fileUrl} = await processUpload(file);
+      for (const file of req.files) {
+        const fileName = file.filename;
+        const filePath = file.path;
+        const fileUrl = this.storageService.getFileUrl(fileName);
         // Store metadata in database
-        // This is just a placeholder. You'd typically use your Mongoose model here.
         const metadata = {
           fileName,
           filePath,
           fileUrl,
-          userId: req.user.id, // Assuming you have user info from auth middleware
+          userId: tokenData.userId,
           uploadedAt: new Date(),
         };
-        // Save metadata to database
         await FilesMeta.create(metadata);
 
         uploadedFiles.push({fileName, fileUrl});
@@ -127,15 +168,21 @@ export default class UploadController {
   download = async (req, res, next) => {
     try {
       const {fileName} = req.params;
-      const file = await FilesMeta.findOne({
-        fileName,
-      });
+
+      if (!fileName) {
+        throw new ResponseError('File name is required', 400);
+      }
+
+      const file = await FilesMeta.findOne({fileName});
       if (!file) {
         throw new ResponseError('File not found', 404);
       }
 
-      const filePath = file.filePath;
-      res.download(filePath);
+      res.download(file.filePath, file.fileName, (err) => {
+        if (err) {
+          next(new ResponseError('Error downloading file', 500));
+        }
+      });
     } catch (error) {
       next(error);
     }
@@ -144,16 +191,18 @@ export default class UploadController {
   delete = async (req, res, next) => {
     try {
       const {fileName} = req.params;
-      const file = await FilesMeta.findOne({
-        fileName,
-      });
+
+      if (!fileName) {
+        throw new ResponseError('File name is required', 400);
+      }
+
+      const file = await FilesMeta.findOne({fileName});
       if (!file) {
         throw new ResponseError('File not found', 404);
       }
 
-      await FilesMeta.deleteOne({
-        fileName,
-      });
+      await this.storageService.deleteFile(fileName);
+      await FilesMeta.deleteOne({fileName});
 
       return ResponseApi.success(res, 'File deleted successfully');
     } catch (error) {

@@ -17,6 +17,12 @@ export default function () {
     'user_id',
   );
   router.get('/', authMiddleware, controller.searchInovation);
+  router.get(
+    '/admin',
+    authMiddleware,
+    roleMiddleware(ROLE_PERMISSION[ROLE.ADMIN]),
+    controller.searchAdminInovation,
+  );
   router.get('/:id', authMiddleware, controller.getInovation);
 
   router.post(

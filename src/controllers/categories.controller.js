@@ -77,8 +77,14 @@ export default class CategoriesController {
       if (error) {
         throw new ResponseError(error.message, 400);
       }
-      const categories = await this.service.searchCategories(value);
-      return ResponseApi.success(res, categories);
+      const {categories, count} = await this.service.searchCategories(value);
+
+      const pagination = {
+        total: count,
+        perPage: value.perPage,
+        page: value.page,
+      };
+      return ResponseApi.success(res, categories, pagination);
     } catch (error) {
       return next(error);
     }
