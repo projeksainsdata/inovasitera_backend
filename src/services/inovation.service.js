@@ -47,6 +47,21 @@ export default class InovationService {
       if (category) {
         queryBuilder.addSearchQuery({'category.name': category});
       }
+      queryBuilder.addLookupStage('ratings');
+      queryBuilder.addLookupStage('categories');
+      queryBuilder.addFields({
+        average_rating: {
+          $avg: '$rating.rating',
+        },
+      });
+      queryBuilder.selectFields({
+        _id: 1,
+        Image: 1,
+        title: 1,
+        average_rating: 1,
+        status: 1,
+        createdAt: 1,
+      });
       queryBuilder.sort(sort, order).paginate(page, perPage);
 
       const {results, count} = await queryBuilder.execute();
@@ -184,8 +199,6 @@ export default class InovationService {
         queryBuilder.addSearchQuery({'category.name': params.category});
       }
 
-      queryBuilder.sort(sort, order).paginate(page, perPage);
-
       // make aggregation to get average rating and count rating for each inovation
       queryBuilder.addLookupStage('ratings');
       queryBuilder.addLookupStage('categories');
@@ -206,6 +219,7 @@ export default class InovationService {
         count_rating: 1,
       });
 
+      queryBuilder.sort(sort, order).paginate(page, perPage);
       const {results, count} = await queryBuilder.execute();
 
       return {inovations: results, count};
