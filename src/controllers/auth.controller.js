@@ -324,7 +324,7 @@ export default class AuthController {
 
   me = async (req, res, next) => {
     try {
-      const user = this.userService.findById(req.user._id);
+      const user = await this.userService.findById(req.user._id);
       return ResponseApi.success(res, user);
     } catch (error) {
       next(error);

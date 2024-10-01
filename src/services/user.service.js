@@ -34,7 +34,9 @@ export default class UserService {
 
   //   findById(id) {
   async findById(id) {
-    return await UserModel.findById(id);
+    return await UserModel.findById(id).select(
+      '-password -resetPassword -emailVerify',
+    );
   }
   async findByIdPassword(id) {
     return await UserModel.findById(id).select('+password');
