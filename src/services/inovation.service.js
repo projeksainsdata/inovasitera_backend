@@ -22,6 +22,41 @@ export default class InovationService {
     }
   };
 
+  searchUserInovation = async (
+    user_id,
+    {page, perPage, q, sort, order, category, status},
+  ) => {
+    try {
+      const queryBuilder = new MongooseAggregationBuilder(InovationModel);
+
+      queryBuilder.addSearchQuery({user_id: user_id});
+
+      if (q) {
+        queryBuilder.addSearchQuery({
+          $or: [
+            {field: 'title', value: q},
+            {field: 'description', value: q},
+          ],
+        });
+      }
+
+      if (status) {
+        queryBuilder.addSearchQuery({status: status});
+      }
+
+      if (category) {
+        queryBuilder.addSearchQuery({'category.name': category});
+      }
+      queryBuilder.sort(sort, order).paginate(page, perPage);
+
+      const {results, count} = await queryBuilder.execute();
+
+      return {inovations: results, count};
+    } catch (error) {
+      throw new ResponseError(error.message, 400);
+    }
+  };
+
   deleteInovation = async (id) => {
     return InovationModel.findByIdAndDelete(id);
   };

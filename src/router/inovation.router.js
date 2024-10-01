@@ -23,6 +23,12 @@ export default function () {
     roleMiddleware(ROLE_PERMISSION[ROLE.ADMIN]),
     controller.searchAdminInovation,
   );
+  router.get(
+    '/user',
+    authMiddleware,
+    roleMiddleware(ROLE_PERMISSION[ROLE.INOVATOR]),
+    controller.searchUserInovation,
+  );
   router.get('/:id', authMiddleware, controller.getInovation);
 
   router.post(

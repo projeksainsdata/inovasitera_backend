@@ -38,6 +38,30 @@ export default class InovationController {
     }
   };
 
+  searchUserInovation = async (req, res, next) => {
+    try {
+      const {value, error} = validator.inovationInovatorQuerySchema.validate(
+        req.query,
+      );
+      if (error) {
+        throw new ResponseError(error.message, 400);
+      }
+
+      const {inovations, count} = await this.services.searchUserInovation(
+        req.user._id,
+        value,
+      );
+      const pagination = {
+        page: Number(req.query.page) || 1,
+        perPage: Number(req.query.perPage) || 10,
+        total: count,
+      };
+      return ResponseApi.success(res, inovations, pagination);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   updateInovation = async (req, res, next) => {
     try {
       const {value, error} = validator.inovationUpdateSchema.validate(req.body);

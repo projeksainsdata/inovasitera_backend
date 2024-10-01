@@ -114,3 +114,13 @@ export const inovationAdminQuerySchema = Joi.object({
   sort: Joi.string().default('createdAt'),
   order: Joi.string().default('desc'),
 });
+
+export const inovationInovatorQuerySchema = Joi.object({
+  page: Joi.number().default(1),
+  perPage: Joi.number().default(10),
+  q: Joi.string().allow(null, ''),
+  category: Joi.string().allow(null, ''),
+  status: Joi.string().allow(null, ''),
+  sort: Joi.string().default('createdAt'),
+  order: Joi.string().default('desc'),
+});
