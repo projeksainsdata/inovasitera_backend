@@ -89,4 +89,11 @@ export default {
     uploadUrl:
       process.env.UPLOAD_URL || 'http://localhost:3001/api/v1/uploads/',
   },
+
+  aws: {
+    bucket: process.env.AWS_BUCKET_NAME,
+    region: process.env.AWS_BUCKET_REGION,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  },
 };

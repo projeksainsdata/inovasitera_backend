@@ -3,26 +3,27 @@ import express from 'express';
 import authMiddleware from '../middlewares/auth.middleware.js';
 import createOwnershipMiddleware from '../middlewares/isowner.middleware.js';
 
-import UploadModel from '../models/files.model.js';
+import FileMetadata from '../models/files.model.js';
 
 export default function () {
   const router = express.Router();
   const controller = new UploadController();
 
   const uploadOwnershipMiddleware = createOwnershipMiddleware(
-    UploadModel,
+    FileMetadata,
     'id',
-    'user_id',
+    'uploadedBy',
   );
 
-  router.post('/', authMiddleware, controller.upload);
   router.post('/token', authMiddleware, controller.generateUploadToken);
+  router.post('/request-url', authMiddleware, controller.requestPresignedUrl);
+  router.post('/confirm', authMiddleware, controller.confirmUpload);
 
   router.delete(
-    '/:id',
+    '/:imageId',
     authMiddleware,
     uploadOwnershipMiddleware,
-    controller.delete,
+    controller.deleteImage,
   );
 
   return router;

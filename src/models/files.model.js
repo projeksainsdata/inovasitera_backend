@@ -1,42 +1,43 @@
+// models/ImageMetadata.js
 import mongoose from 'mongoose';
 
-const Schema = mongoose.Schema;
-const model = mongoose.model;
-
-const FilesMetaSchema = new Schema(
-  {
-    // const metadata = {
-    //     fileName,
-    //     filePath,
-    //     fileUrl,
-    //     userId: req.user.id, // Assuming you have user info from auth middleware
-    //     uploadedAt: new Date()
-    //   };
-    fileName: {
-      type: String,
-      required: true,
-    },
-    filePath: {
-      type: String,
-      required: true,
-    },
-    fileUrl: {
-      type: String,
-      required: true,
-    },
-    user_id: {
-      type: Schema.Types.ObjectId,
-      ref: 'Users',
-    },
+const FileMetadataSchema = new mongoose.Schema({
+  imageId: {
+    type: String,
+    required: true,
+    unique: true,
   },
-  {
-    timestamps: true,
-    autoSearchIndex: true,
+  uploadedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Users',
+    required: true,
   },
-);
+  originalFilename: {
+    type: String,
+    required: true,
+  },
+  contentType: {
+    type: String,
+    required: true,
+  },
+  size: {
+    type: Number,
+    required: true,
+  },
+  uploadedAt: {
+    type: Date,
+    default: Date.now,
+  },
+  s3Key: {
+    type: String,
+    required: true,
+  },
+  url: {
+    type: String,
+    required: true,
+  },
+});
 
-const FilesMeta = model('FilesMeta', FilesMetaSchema);
+const FileMetadata = mongoose.model('FileMetadata', FileMetadataSchema);
 
-FilesMeta.createIndexes();
-
-export default FilesMeta;
+export default FileMetadata;

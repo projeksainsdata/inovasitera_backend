@@ -1,96 +1,117 @@
-import jwt from 'jsonwebtoken';
-import fs from 'fs/promises';
-import path from 'path';
-import crypto from 'crypto';
+// services/uploadService.js
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  HeadObjectCommand,
+} from '@aws-sdk/client-s3';
+import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
+import uuidv4 from '../utils/uuid.js';
+import FileMetadata from '../models/files.model.js';
+import {
+  validateFileType,
+  validateMetadata,
+} from '../validate/upload.validate.js';
+import {generateUploadToken, verifyUploadToken} from '../utils/jwtUtils.js';
+import ResponseError from '../responses/error.response.js';
 import config from '../config/config.js';
 
-// Simulated token storage. In production, use a database or cache like Redis.
-const tokenStorage = new Map();
-
-export const generateUploadToken = (userId, fileType, maxSizeBytes) => {
-  const tokenId = crypto.randomBytes(16).toString('hex');
-  const tokenPayload = {
-    jti: tokenId, // JWT ID
-    userId,
-    purpose: 'upload',
-    fileType,
-    maxSizeBytes,
-  };
-  const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
-    expiresIn: '1h',
-  });
-
-  // Store the tokenId with a 'used' flag
-  tokenStorage.set(tokenId, {used: false});
-
-  return token;
-};
-
-export const validateAndConsumeUploadToken = async (token) => {
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    if (decoded.purpose !== 'upload') {
-      return false;
-    }
-
-    // Check if the token has already been used
-    const tokenStatus = tokenStorage.get(decoded.jti);
-    if (!tokenStatus || tokenStatus.used) {
-      return false;
-    }
-
-    // Mark the token as used
-    tokenStorage.set(decoded.jti, {used: true});
-
-    return decoded;
-  } catch (error) {
-    // Log error for debugging purposes
-    console.error('Token validation error:', error);
-    return false;
-  }
-};
-
-class StorageService {
-  constructor(storageDir) {
-    this.storageDir = storageDir;
+class UploadService {
+  constructor() {
+    this.s3Client = new S3Client({
+      region: config.aws.region,
+      credentials: {
+        accessKeyId: config.aws.accessKeyId,
+        secretAccessKey: config.aws.secretAccessKey,
+      },
+    });
+    this.bucketName = config.aws.bucket;
   }
 
-  async storeFile(file, filename) {
+  async generateUploadToken(userId) {
+    return generateUploadToken(userId);
+  }
+
+  async validateUploadToken(token) {
+    return verifyUploadToken(token);
+  }
+
+  async generatePresignedUrl(fileType, token) {
+    const userId = await this.validateUploadToken(token);
+
+    if (!validateFileType(fileType)) {
+      throw new ResponseError(400, 'Invalid file type');
+    }
+
+    const imageId = uuidv4();
+    const key = `${imageId}.${fileType}`;
+    const command = new PutObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+      ContentType: `image/${fileType}`,
+    });
+
     try {
-      const filePath = path.join(this.storageDir, filename);
-
-      // Ensure the storage directory exists
-      await fs.mkdir(this.storageDir, {recursive: true});
-
-      // Write the file to disk
-      await fs.writeFile(filePath, file.buffer);
-
-      return filePath;
-    } catch (error) {
-      console.error('Error storing file:', error);
-      throw new Error('Failed to store file');
+      const uploadUrl = await getSignedUrl(this.s3Client, command, {
+        expiresIn: 300,
+      });
+      return {uploadUrl, imageId, key, userId};
+    } catch {
+      throw new ResponseError(500, 'Failed to generate presigned URL');
     }
   }
 
-  async deleteFile(filename) {
+  async confirmUpload(imageId, metadata, userId) {
+    if (!validateMetadata(metadata)) {
+      throw new ResponseError(400, 'Invalid metadata');
+    }
+
     try {
-      const filePath = path.join(this.storageDir, filename);
-      await fs.unlink(filePath);
-    } catch (error) {
-      // Ignore the error if the file does not exist
-      if (error.code !== 'ENOENT') {
-        console.error('Error deleting file:', error);
-        throw new Error('Failed to delete file');
+      // Verify the file exists in S3
+      const headCommand = new HeadObjectCommand({
+        Bucket: this.bucketName,
+        Key: `${imageId}.${metadata.contentType.split('/')[1]}`,
+      });
+      await this.s3Client.send(headCommand);
+
+      const newImage = new FileMetadata({
+        imageId,
+        uploadedBy: userId,
+        originalFilename: metadata.filename,
+        contentType: metadata.contentType,
+        size: metadata.size,
+        uploadedAt: new Date(),
+        s3Key: `${imageId}.${metadata.contentType.split('/')[1]}`,
+        url: `https://${this.bucketName}.s3.amazonaws.com/${imageId}.${metadata.contentType.split('/')[1]}`,
+      });
+
+      await newImage.save();
+      return {success: true, imageId};
+    } catch {
+      throw new ResponseError(500, 'Failed to confirm upload');
+    }
+  }
+
+  async deleteImage(imageId, userId) {
+    try {
+      const image = await FileMetadata.findOne({imageId, uploadedBy: userId});
+      if (!image) {
+        throw new ResponseError(404, 'Image not found');
       }
-    }
-  }
 
-  getFileUrl(filename) {
-    // Securely construct the file URL
-    const baseUrl = config.api.baseUrl;
-    return `${baseUrl}/uploads/${encodeURIComponent(filename)}`;
+      const deleteCommand = new DeleteObjectCommand({
+        Bucket: this.bucketName,
+        Key: image.s3Key,
+      });
+      await this.s3Client.send(deleteCommand);
+
+      await FileMetadata.deleteOne({imageId});
+
+      return {success: true, message: 'Image deleted successfully'};
+    } catch {
+      throw new ResponseError(500, 'Failed to delete image');
+    }
   }
 }
 
-export const storageService = new StorageService(config.storage.dir);
+export default new UploadService();
