@@ -1,13 +1,11 @@
 // validators.js
 import Joi from 'joi';
 
-export const fileTypeSchema = Joi.string().regex(/^image\/.+$/);
+export const fileTypeSchema = Joi.string();
 
 export const metadataSchema = Joi.object({
   filename: Joi.string().min(1).max(255).required(),
-  contentType: Joi.string()
-    .regex(/^image\/.+$/)
-    .required(),
+  contentType: Joi.string().required(),
   size: Joi.number()
     .positive()
     .max(10 * 1024 * 1024)

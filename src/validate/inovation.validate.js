@@ -1,6 +1,5 @@
 import Joi from 'joi';
 
-// SCHEMA INOVATION MODEL
 // const inovatationSchema = new Schema(
 //     {
 //       title: {
@@ -67,29 +66,49 @@ export const inovationSchema = Joi.object({
   title: Joi.string().required(),
   description: Joi.string().optional(),
   category: Joi.string().required(),
-  user_id: Joi.string().required(),
-  status: Joi.string().optional(),
-  Image: Joi.string().optional(),
+  collaboration: Joi.array(),
   adventage: Joi.string().optional(),
+  user_id: Joi.string().required(),
+
+  //image
+  images: Joi.array(),
+  thumbnail: Joi.string().required(),
+
+  //inovation details
+  development_stage: Joi.string().optional(),
   status_paten: Joi.string().optional(),
   score_tkt: Joi.string().optional(),
-  invesment_value: Joi.string().optional(),
-  collaboration: Joi.array().optional(),
   collaboration_details: Joi.string().optional(),
+
+  // inovation status
+  status: Joi.string().default('pending'),
+
+  // inovation investment
+  faq: Joi.array(),
 });
 
 export const inovationUpdateSchema = Joi.object({
   title: Joi.string().allow('', null),
   description: Joi.string().allow('', null),
   category: Joi.string().allow('', null),
-  status: Joi.string().allow('', null),
-  Image: Joi.string().allow('', null),
   adventage: Joi.string().allow('', null),
+  collaboration: Joi.array(),
+
+  //image
+  images: Joi.array(),
+  thumbnail: Joi.string().allow('', null),
+
+  //inovation details
+  development_stage: Joi.string().allow('', null),
   status_paten: Joi.string().allow('', null),
   score_tkt: Joi.string().allow('', null),
-  invesment_value: Joi.string().allow('', null),
-  collaboration: Joi.array(),
   collaboration_details: Joi.string().allow('', null),
+
+  // inovation status
+  status: Joi.string().allow('', null),
+
+  // inovation investment
+  faq: Joi.array(),
 });
 
 export const inovationIdSchema = Joi.object({

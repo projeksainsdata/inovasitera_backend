@@ -21,7 +21,7 @@ class UploadController {
       );
       return ResponseApi.success(res, {uploadUrl, imageId});
     } catch (error) {
-      return next(error);
+      next(error);
     }
   }
 
@@ -35,7 +35,33 @@ class UploadController {
       );
       return ResponseApi.success(res, result);
     } catch (error) {
-      return next(error);
+      next(error);
+    }
+  }
+
+  async requestBatchPresignedUrls(req, res, next) {
+    try {
+      const {fileTypes, token} = req.body;
+      const presignedUrls = await uploadService.generatePresignedUrls(
+        fileTypes,
+        token,
+      );
+      return ResponseApi.success(res, {presignedUrls});
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async confirmBatchUpload(req, res, next) {
+    try {
+      const {uploadedImages} = req.body;
+      const result = await uploadService.confirmBatchUpload(
+        uploadedImages,
+        req.user._id,
+      );
+      return ResponseApi.success(res, result);
+    } catch (error) {
+      next(error);
     }
   }
 
@@ -47,7 +73,7 @@ class UploadController {
       );
       return ResponseApi.noContent(res, result);
     } catch (error) {
-      return next(error);
+      next(error);
     }
   }
 }

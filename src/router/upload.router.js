@@ -18,6 +18,12 @@ export default function () {
   router.post('/token', authMiddleware, controller.generateUploadToken);
   router.post('/request-url', authMiddleware, controller.requestPresignedUrl);
   router.post('/confirm', authMiddleware, controller.confirmUpload);
+  router.post(
+    '/batch-request-url',
+    authMiddleware,
+    controller.requestBatchPresignedUrls,
+  );
+  router.post('/batch-confirm', authMiddleware, controller.confirmBatchUpload);
 
   router.delete(
     '/:imageId',

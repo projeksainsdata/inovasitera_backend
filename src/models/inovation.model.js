@@ -25,6 +25,18 @@ const ratingSchema = new Schema({
     default: Date.now,
   },
 });
+
+const FaQSchema = new Schema({
+  question: {
+    type: String,
+    required: true,
+  },
+  answer: {
+    type: String,
+    required: true,
+  },
+});
+
 const inovatationSchema = new Schema(
   {
     title: {
@@ -48,27 +60,25 @@ const inovatationSchema = new Schema(
       default: 'pending',
       enum: ['pending', 'approved', 'rejected'],
     },
-    Image: {
+    images: [
+      {
+        type: String,
+        required: false,
+      },
+    ],
+    thumbnail: {
       type: String,
       required: false,
     },
-
     adventage: {
       type: String,
       required: false,
     },
-
     status_paten: {
       type: String,
       required: false,
     },
-
     score_tkt: {
-      type: String,
-      required: false,
-    },
-
-    invesment_value: {
       type: String,
       required: false,
     },
@@ -83,7 +93,14 @@ const inovatationSchema = new Schema(
       required: false,
     },
 
+    development_stage: {
+      type: String,
+      required: false,
+    },
+
     rating: [ratingSchema],
+
+    faq: [FaQSchema],
   },
   {timestamps: true},
 );

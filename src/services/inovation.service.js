@@ -1,6 +1,7 @@
 import InovationModel from '../models/inovation.model.js';
 import ResponseError from '../responses/error.response.js';
-import {MongooseAggregationBuilder} from '../utils/buildQuery.js';
+import {buildAggregationPipeline} from '../utils/buildQuery.js';
+
 export default class InovationService {
   createInovation = async (data) => {
     try {
@@ -11,7 +12,11 @@ export default class InovationService {
   };
 
   findById = async (id) => {
-    return InovationModel.findById(id);
+    try {
+      return InovationModel.findById(id);
+    } catch (error) {
+      throw new ResponseError(error.message, 400);
+    }
   };
 
   updateInovation = async (id, data) => {
@@ -27,44 +32,49 @@ export default class InovationService {
     {page, perPage, q, sort, order, category, status},
   ) => {
     try {
-      const queryBuilder = new MongooseAggregationBuilder(InovationModel);
-
-      queryBuilder.addSearchQuery({user_id: user_id});
+      const options = {
+        search: {user_id},
+        page,
+        perPage,
+        sort: {[sort]: order === 'desc' ? -1 : 1},
+        lookup: [
+          {
+            from: 'categories',
+            localField: 'category',
+            foreignField: '_id',
+            as: 'category',
+          },
+        ],
+        addFields: {
+          average_rating: {$avg: '$rating.rating'},
+          count_rating: {$size: '$rating'},
+          category: {$arrayElemAt: ['$category', 0]},
+        },
+        select: {
+          _id: 1,
+          Image: 1,
+          title: 1,
+          average_rating: 1,
+          status: 1,
+          category: 1,
+          createdAt: 1,
+        },
+      };
 
       if (q) {
-        queryBuilder.addSearchQuery({
-          $or: [
-            {field: 'title', value: q},
-            {field: 'description', value: q},
-          ],
-        });
+        options.search.$or = [{title: q}, {description: q}];
       }
 
       if (status) {
-        queryBuilder.addSearchQuery({status: status});
+        options.search.status = status;
       }
 
       if (category) {
-        queryBuilder.addSearchQuery({'category.name': category});
+        options.search['category.name'] = category;
       }
-      queryBuilder.addLookupStage('ratings');
-      queryBuilder.addLookupStage('categories');
-      queryBuilder.addFields({
-        average_rating: {
-          $avg: '$rating.rating',
-        },
-      });
-      queryBuilder.selectFields({
-        _id: 1,
-        Image: 1,
-        title: 1,
-        average_rating: 1,
-        status: 1,
-        createdAt: 1,
-      });
-      queryBuilder.sort(sort, order).paginate(page, perPage);
 
-      const {results, count} = await queryBuilder.execute();
+      const builder = buildAggregationPipeline(InovationModel, options);
+      const {results, count} = await builder.execute();
 
       return {inovations: results, count};
     } catch (error) {
@@ -86,28 +96,37 @@ export default class InovationService {
     status,
   }) {
     try {
-      const queryBuilder = new MongooseAggregationBuilder(InovationModel);
+      const options = {
+        page,
+        perPage,
+        sort: {[sort]: order === 'desc' ? -1 : 1},
+        populate: ['category'],
+        select: {
+          _id: 1,
+          thumbnail: 1,
+          title: 1,
+          status: 1,
+          createdAt: 1,
+          category: 1,
+        },
+      };
 
       if (q) {
-        queryBuilder.addSearchQuery({
-          $or: [
-            {field: 'title', value: q},
-            {field: 'description', value: q},
-          ],
-        });
+        options.search = {
+          $or: [{title: q}, {description: q}],
+        };
       }
 
       if (status) {
-        queryBuilder.addSearchQuery({status: status});
+        options.search = {...options.search, status};
       }
 
       if (category) {
-        queryBuilder.addSearchQuery({'category.name': category});
+        options.search = {...options.search, 'category.name': category};
       }
 
-      queryBuilder.sort(sort, order).paginate(page, perPage);
-
-      const {results, count} = await queryBuilder.execute();
+      const builder = buildAggregationPipeline(InovationModel, options);
+      const {results, count} = await builder.execute();
 
       return {inovations: results, count};
     } catch (error) {
@@ -116,111 +135,45 @@ export default class InovationService {
   }
 
   async searchInovation({page, perPage, q, sort, order, ...params}) {
-    // { 'category.name': 'Practical Frozen Computer,Gorgeous Steel Bike' } params
-
-    // build query to search inovation by title and description with category name and sort by average rating
-
-    // // make aggregation to get average rating and count rating for each inovation
-    // const inovations = await InovationModel.aggregate([
-    //   {
-    //     $match: query,
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: 'ratings',
-    //       localField: '_id',
-    //       foreignField: 'inovation_id',
-    //       as: 'rating',
-    //     },
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: 'categories',
-    //       localField: 'category',
-    //       foreignField: '_id',
-    //       as: 'category',
-    //     },
-    //   },
-    //   {
-    //     $addFields: {
-    //       average_rating: {
-    //         $avg: '$rating.rating',
-    //       },
-    //       count_rating: {
-    //         $size: '$rating',
-    //       },
-    //     },
-    //   },
-    //   {
-    //     // only show fields that we need to show
-    //     // like _id,image,title,category,name,average_rating,count_rating
-    //     $project: {
-    //       _id: 1,
-    //       Image: 1,
-    //       title: 1,
-    //       category: {name: 1},
-    //       average_rating: 1,
-    //       count_rating: 1,
-    //     },
-    //   },
-    //   {
-    //     $sort: {[sort]: order === 'desc' ? -1 : 1},
-    //   },
-    //   {
-    //     $skip: (page - 1) * perPage,
-    //   },
-    //   {
-    //     $limit: perPage,
-    //   },
-    // ]);
-
-    // const count = await InovationModel.countDocuments(query);
-
-    // return {inovations, count};
-
     try {
-      const queryBuilder = new MongooseAggregationBuilder(InovationModel);
+      const options = {
+        page,
+        perPage,
+        sort: {[sort]: order === 'desc' ? -1 : 1},
+        search: {status: 'approved'},
+        addFields: {
+          average_rating: {$avg: '$rating.rating'},
+          count_rating: {$size: '$rating'},
+        },
+        select: {
+          _id: 1,
+          thumbnail: 1,
+          title: 1,
+          'category.name': 1,
+          average_rating: 1,
+          count_rating: 1,
+        },
+        populate: ['category', 'rating'],
+        lookup: [
+          {
+            from: 'categories',
+            localField: 'category',
+            foreignField: '_id',
+            as: 'category',
+          },
+        ],
+      };
 
       if (q) {
-        queryBuilder.addSearchQuery({
-          $and: [
-            {field: 'status', value: 'approved'},
-            {
-              $or: [
-                {field: 'title', value: q},
-                {field: 'description', value: q},
-              ],
-            },
-          ],
-        });
+        options.search.$or = [{title: q}, {description: q}];
       }
 
       if (params.category) {
-        queryBuilder.addSearchQuery({'category.name': params.category});
+        options.search['category.name'] = params.category;
       }
 
-      // make aggregation to get average rating and count rating for each inovation
-      queryBuilder.addLookupStage('ratings');
-      queryBuilder.addLookupStage('categories');
-      queryBuilder.addFields({
-        average_rating: {
-          $avg: '$rating.rating',
-        },
-        count_rating: {
-          $size: '$rating',
-        },
-      });
-      queryBuilder.selectFields({
-        _id: 1,
-        Image: 1,
-        title: 1,
-        'category.name': 1,
-        average_rating: 1,
-        count_rating: 1,
-      });
-
-      queryBuilder.sort(sort, order).paginate(page, perPage);
-      const {results, count} = await queryBuilder.execute();
+      const builder = buildAggregationPipeline(InovationModel, options);
+      const {results, count} = await builder.execute();
 
       return {inovations: results, count};
     } catch (error) {
@@ -240,7 +193,12 @@ export default class InovationService {
 
   async getRatingByInovation(id) {
     try {
-      return InovationModel.findById(id).select('rating');
+      const builder = buildAggregationPipeline(InovationModel, {
+        search: {_id: id},
+        select: {rating: 1},
+      });
+      const {results} = await builder.execute();
+      return results[0];
     } catch (error) {
       throw new ResponseError(error.message, 400);
     }
@@ -259,9 +217,11 @@ export default class InovationService {
 
   async getRatingByUserId(id) {
     try {
-      return InovationModel.find({rating: {$elemMatch: {user_id: id}}}).select(
-        'rating',
-      );
+      const builder = buildAggregationPipeline(InovationModel, {
+        search: {'rating.user_id': id},
+        select: {rating: 1},
+      });
+      return builder.execute();
     } catch (error) {
       throw new ResponseError(error.message, 400);
     }
