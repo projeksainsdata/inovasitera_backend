@@ -7,7 +7,7 @@
     "clean": "rm -rf build && mkdir build",
     "build-server": "babel ./src --out-dir ./build --ignore ./src/__tests__",
     "build": "npm run clean && npm run build-server",
-    "start": "pm2 start ./build/app.js -i 3  ",
+    "start": "pm2 start ./build/app.js -i 3  --no-daemon",
     "dev": "nodemon --exec babel-node ./src/app.js",
     "monit": "pm2 monit",
     "stop": "pm2 stop all",
