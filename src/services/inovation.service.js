@@ -1,191 +1,157 @@
+// inovationService.js
 import InovationModel from '../models/inovation.model.js';
 import ResponseError from '../responses/error.response.js';
-import {buildAggregationPipeline} from '../utils/buildQuery.js';
 
 export default class InovationService {
-  createInovation = async (data) => {
+  async createInovation(data) {
     try {
-      return InovationModel.create(data);
+      return await InovationModel.create(data);
     } catch (error) {
       throw new ResponseError(error.message, 400);
     }
-  };
+  }
 
-  findById = async (id) => {
+  async findById(id) {
     try {
-      return InovationModel.findById(id);
+      return await InovationModel.findById(id)
+        .populate('category', 'name')
+        .populate('rating.user_id', 'fullname profile')
+        .lean();
     } catch (error) {
       throw new ResponseError(error.message, 400);
     }
-  };
+  }
 
-  updateInovation = async (id, data) => {
+  async updateInovation(id, data) {
     try {
-      return InovationModel.findByIdAndUpdate(id, {$set: data}, {new: true});
+      return await InovationModel.findByIdAndUpdate(
+        id,
+        {$set: data},
+        {new: true},
+      ).lean();
     } catch (error) {
       throw new ResponseError(error.message, 400);
     }
-  };
+  }
 
-  searchUserInovation = async (
+  async searchUserInovation(
     user_id,
-    {page, perPage, q, sort, order, category, status},
-  ) => {
+    {
+      page = 1,
+      perPage = 10,
+      q,
+      sort = 'createdAt',
+      order = 'desc',
+      category,
+      status,
+    },
+  ) {
     try {
-      const options = {
-        search: {user_id},
-        page,
-        perPage,
-        sort: {[sort]: order === 'desc' ? -1 : 1},
-        lookup: [
-          {
-            from: 'categories',
-            localField: 'category',
-            foreignField: '_id',
-            as: 'category',
-          },
-        ],
-        addFields: {
-          average_rating: {$avg: '$rating.rating'},
-          count_rating: {$size: '$rating'},
-          category: {$arrayElemAt: ['$category', 0]},
-        },
-        select: {
-          _id: 1,
-          Image: 1,
-          title: 1,
-          average_rating: 1,
-          status: 1,
-          category: 1,
-          createdAt: 1,
-        },
-      };
+      const query = {user_id};
 
       if (q) {
-        options.search.$or = [{title: q}, {description: q}];
+        query.$or = [
+          {title: {$regex: q, $options: 'i'}},
+          {description: {$regex: q, $options: 'i'}},
+        ];
       }
 
       if (status) {
-        options.search.status = status;
+        query.status = status;
       }
 
       if (category) {
-        options.search['category.name'] = category;
+        query['category.name'] = category;
       }
 
-      const builder = buildAggregationPipeline(InovationModel, options);
-      const {results, count} = await builder.execute();
+      const inovationQuery = InovationModel.find(query)
+        .populate('category', 'name')
+        .sort({[sort]: order === 'desc' ? -1 : 1})
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .select('Image title status category createdAt')
+        .lean();
 
-      return {inovations: results, count};
+      const [inovations, count] = await Promise.all([
+        inovationQuery,
+        InovationModel.countDocuments(query),
+      ]);
+
+      // Calculate average rating for each innovation
+      const processedInovations = inovations.map((inov) => ({
+        ...inov,
+        average_rating: inov.rating
+          ? inov.rating.reduce((acc, r) => acc + r.rating, 0) /
+            inov.rating.length
+          : 0,
+        count_rating: inov.rating ? inov.rating.length : 0,
+      }));
+
+      return {inovations: processedInovations, count};
     } catch (error) {
       throw new ResponseError(error.message, 400);
     }
-  };
+  }
 
-  deleteInovation = async (id) => {
-    return InovationModel.findByIdAndDelete(id);
-  };
-
-  async searchAdminInovation({
-    page,
-    perPage,
+  async searchInovation({
+    page = 1,
+    perPage = 10,
     q,
-    sort,
-    order,
+    sort = 'createdAt',
+    order = 'desc',
     category,
-    status,
   }) {
     try {
-      const options = {
-        page,
-        perPage,
-        sort: {[sort]: order === 'desc' ? -1 : 1},
-        populate: ['category'],
-        select: {
-          _id: 1,
-          thumbnail: 1,
-          title: 1,
-          status: 1,
-          createdAt: 1,
-          category: 1,
-        },
-      };
+      const query = {status: 'approved'};
 
       if (q) {
-        options.search = {
-          $or: [{title: q}, {description: q}],
-        };
-      }
-
-      if (status) {
-        options.search = {...options.search, status};
+        query.$or = [
+          {title: {$regex: q, $options: 'i'}},
+          {description: {$regex: q, $options: 'i'}},
+        ];
       }
 
       if (category) {
-        options.search = {...options.search, 'category.name': category};
+        query['category.name'] = category;
       }
 
-      const builder = buildAggregationPipeline(InovationModel, options);
-      const {results, count} = await builder.execute();
+      const inovationQuery = InovationModel.find(query)
+        .populate('category', 'name')
+        .populate('rating')
+        .sort({[sort]: order === 'desc' ? -1 : 1})
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .select('thumbnail title category rating')
+        .lean();
 
-      return {inovations: results, count};
+      const [inovations, count] = await Promise.all([
+        inovationQuery,
+        InovationModel.countDocuments(query),
+      ]);
+
+      // Process ratings
+      const processedInovations = inovations.map((inov) => ({
+        ...inov,
+        average_rating: inov.rating
+          ? inov.rating.reduce((acc, r) => acc + r.rating, 0) /
+            inov.rating.length
+          : 0,
+        count_rating: inov.rating ? inov.rating.length : 0,
+      }));
+
+      return {inovations: processedInovations, count};
     } catch (error) {
       throw new ResponseError(error.message, 400);
     }
   }
 
-  async searchInovation({page, perPage, q, sort, order, ...params}) {
+  async createRatingInovation({inovation_id, ...ratingData}) {
     try {
-      const options = {
-        page,
-        perPage,
-        sort: {[sort]: order === 'desc' ? -1 : 1},
-        search: {status: 'approved'},
-        addFields: {
-          average_rating: {$avg: '$rating.rating'},
-          count_rating: {$size: '$rating'},
-        },
-        select: {
-          _id: 1,
-          thumbnail: 1,
-          title: 1,
-          'category.name': 1,
-          average_rating: 1,
-          count_rating: 1,
-        },
-        populate: ['category', 'rating'],
-        lookup: [
-          {
-            from: 'categories',
-            localField: 'category',
-            foreignField: '_id',
-            as: 'category',
-          },
-        ],
-      };
-
-      if (q) {
-        options.search.$or = [{title: q}, {description: q}];
-      }
-
-      if (params.category) {
-        options.search['category.name'] = params.category;
-      }
-
-      const builder = buildAggregationPipeline(InovationModel, options);
-      const {results, count} = await builder.execute();
-
-      return {inovations: results, count};
-    } catch (error) {
-      throw new ResponseError(error.message, 400);
-    }
-  }
-
-  async createRatingInovation(id, data) {
-    try {
-      return InovationModel.findByIdAndUpdate(id, {
-        $push: {rating: data},
-      }).select('rating');
+      return await InovationModel.findByIdAndUpdate(
+        inovation_id,
+        {$push: {rating: ratingData}},
+        {new: true},
+      ).select('rating');
     } catch (error) {
       throw new ResponseError(error.message, 400);
     }
@@ -193,12 +159,7 @@ export default class InovationService {
 
   async getRatingByInovation(id) {
     try {
-      const builder = buildAggregationPipeline(InovationModel, {
-        search: {_id: id},
-        select: {rating: 1},
-      });
-      const {results} = await builder.execute();
-      return results[0];
+      return await InovationModel.findById(id).select('rating').lean();
     } catch (error) {
       throw new ResponseError(error.message, 400);
     }
@@ -206,8 +167,8 @@ export default class InovationService {
 
   async deleteRatingbyRating_id(id) {
     try {
-      return InovationModel.updateOne(
-        {rating: {$elemMatch: {_id: id}}},
+      return await InovationModel.updateOne(
+        {'rating._id': id},
         {$pull: {rating: {_id: id}}},
       );
     } catch (error) {
@@ -215,15 +176,17 @@ export default class InovationService {
     }
   }
 
-  async getRatingByUserId(id) {
+  async getRatingByUserId(userId) {
     try {
-      const builder = buildAggregationPipeline(InovationModel, {
-        search: {'rating.user_id': id},
-        select: {rating: 1},
-      });
-      return builder.execute();
+      return await InovationModel.find({'rating.user_id': userId})
+        .select('rating')
+        .lean();
     } catch (error) {
       throw new ResponseError(error.message, 400);
     }
+  }
+
+  async deleteInovation(id) {
+    return await InovationModel.findByIdAndDelete(id);
   }
 }

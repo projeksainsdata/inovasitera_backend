@@ -1,17 +1,12 @@
+// userService.js
 import UserModel from '../models/user.model.js';
 import RefreshToken from '../models/refreshToken.model.js';
 import ResponseError from '../responses/error.response.js';
 
-import {buildAggregationPipeline} from '../utils/buildQuery.js';
-
 export default class UserService {
   async createUser(user) {
     try {
-      // create user in db and select only email and name fields
-      const newUser = await UserModel.create({
-        ...user,
-      });
-      // return only email and name fields
+      const newUser = await UserModel.create(user);
       return {
         id: newUser._id,
         email: newUser.email,
@@ -24,84 +19,85 @@ export default class UserService {
   }
 
   async isAdminById(id) {
-    const user = await UserModel.findById(id).select('role');
-    return user.role === 'admin';
+    const user = await UserModel.findById(id).select('role').lean();
+    return user?.role === 'admin';
   }
 
   async getUserRoleById(id) {
-    return await UserModel.findById(id).select('role');
+    return await UserModel.findById(id).select('role').lean();
   }
 
-  //   findById(id) {
   async findById(id) {
-    return await UserModel.findById(id).select(
-      '-password -resetPassword -emailVerify',
-    );
-  }
-  async findByIdPassword(id) {
-    return await UserModel.findById(id).select('+password');
-  }
-  async findByEmailLogin(email) {
-    return await UserModel.find({email}).select('+password');
+    return await UserModel.findById(id)
+      .select('-password -resetPassword -emailVerify')
+      .lean();
   }
 
-  // deleteRefreshTokenByUserId(userId) {
+  async findByIdPassword(id) {
+    return await UserModel.findById(id).select('+password').lean();
+  }
+
+  async findByEmailLogin(email) {
+    return await UserModel.findOne({email}).select('+password').lean();
+  }
+
   async deleteRefreshTokenByUserId(userId) {
     return await RefreshToken.deleteMany({user: userId});
   }
 
-  // update user
-  async updateUser(userId, user) {
-    return await UserModel.findByIdAndUpdate(userId, {$set: user}, {new: true});
+  async updateUser(userId, userData) {
+    return await UserModel.findByIdAndUpdate(
+      userId,
+      {$set: userData},
+      {new: true},
+    ).lean();
   }
 
-  // search users
-  async searchUsers({page, perPage, q, sort, order, role}) {
-    const options = {
-      page,
-      perPage,
-      sort: {[sort]: order === 'desc' ? -1 : 1},
-      select: {
-        fullname: 1,
-        username: 1,
-        email: 1,
-        role: 1,
-        createdAt: 1,
-        _id: 1,
-        provider: 1,
-        'inovator.fakultas': 1,
-        'inovator.prodi': 1,
-      },
-    };
+  async searchUsers({
+    page = 1,
+    perPage = 10,
+    q,
+    sort = 'createdAt',
+    order = 'desc',
+    role,
+  }) {
+    try {
+      const query = {};
 
-    if (q) {
-      options.search = {
-        $or: [{fullname: q}, {username: q}, {email: q}],
-      };
+      // Build search conditions
+      if (q) {
+        query.$or = [
+          {fullname: {$regex: q, $options: 'i'}},
+          {username: {$regex: q, $options: 'i'}},
+          {email: {$regex: q, $options: 'i'}},
+        ];
+      }
+
+      if (role) {
+        query.role = role;
+      }
+
+      // Build query
+      const userQuery = UserModel.find(query)
+        .select(
+          'fullname username email role createdAt provider inovator.fakultas inovator.prodi',
+        )
+        .sort({[sort]: order === 'desc' ? -1 : 1})
+        .skip((page - 1) * perPage)
+        .limit(perPage);
+
+      // Execute queries in parallel
+      const [users, count] = await Promise.all([
+        userQuery.lean(),
+        UserModel.countDocuments(query),
+      ]);
+
+      return {users, count};
+    } catch (error) {
+      throw new ResponseError(error.message, 400);
     }
-
-    if (role) {
-      options.search = {...options.search, role};
-    }
-
-    const builder = buildAggregationPipeline(UserModel, options);
-    const {results, count} = await builder.execute();
-
-    return {users: results, count};
   }
 
-  // count search users
-  async countSearchUsers(query) {
-    return await UserModel.countDocuments({
-      $or: [
-        {fullname: {$regex: new RegExp(query, 'i')}},
-        {username: {$regex: new RegExp(query, 'i')}},
-        {email: {$regex: new RegExp(query, 'i')}},
-      ],
-    });
-  }
-
-  // delete user
   async deleteUser(userId) {
     return await UserModel.findByIdAndDelete(userId);
   }

@@ -31,6 +31,7 @@ export default class WhitelistController {
       if (!req.user._id) {
         throw new ResponseError('User not found', 404);
       }
+
       const whitelists = await this.service.getWhitelistByUserId(req.user._id);
 
       return ResponseApi.success(res, whitelists);

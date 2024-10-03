@@ -16,7 +16,7 @@ export default function () {
     'id',
     'user_id',
   );
-  router.get('/', authMiddleware, controller.searchInovation);
+  router.get('/', controller.searchInovation);
   router.get(
     '/admin',
     authMiddleware,
@@ -29,7 +29,7 @@ export default function () {
     roleMiddleware(ROLE_PERMISSION[ROLE.INOVATOR]),
     controller.searchUserInovation,
   );
-  router.get('/:id', authMiddleware, controller.getInovation);
+  router.get('/:id', controller.getInovation);
 
   router.post(
     '/',
