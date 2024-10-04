@@ -6,7 +6,6 @@ import * as validate from '../validate/user.validate.js';
 import nodemailer from 'nodemailer';
 import config from '../config/config.js';
 import emailVerifyTemplate from '../helpers/emailTemplate.js';
-import generateUsername from '../helpers/generateUsername.js';
 
 export default class AuthController {
   constructor() {
@@ -30,15 +29,12 @@ export default class AuthController {
       }
       // check if user already exists
       const user = await this.userService.findByEmailLogin(value.email);
-      if (user.length) {
+      if (user) {
         throw new ResponseError('User already exists', 400);
       }
 
       // hash password
       value.password = await this.services.hashPassword(value.password);
-      // create user
-      value.username = await generateUsername(value.email);
-
       const newUser = await this.userService.createUser(value);
       return ResponseApi.created(res, newUser);
     } catch (error) {
@@ -56,31 +52,31 @@ export default class AuthController {
 
       // check if user exists
       const user = await this.userService.findByEmailLogin(value.email);
-      if (!user.length) {
+      if (!user) {
         throw new ResponseError('Invalid email or password', 400);
       }
 
       // compare password
       const isMatch = await this.services.comparePassword(
         value.password,
-        user[0].password,
+        user.password,
       );
       if (!isMatch) {
         throw new ResponseError('Invalid email or password', 400);
       }
 
       // delete refresh token if exists for user
-      await this.userService.deleteRefreshTokenByUserId(user[0]._id);
+      await this.userService.deleteRefreshTokenByUserId(user._id);
 
       // create access and refresh token
       const tokens = await this.services.createAccessAndRefreshToken({
         user: {
-          _id: user[0]._id,
-          email: user[0].email,
-          username: user[0].username,
-          role: user[0].role,
-          emailVerified: user[0].emailVerified,
-          profile: user[0].profile,
+          _id: user._id,
+          email: user.email,
+          username: user.username,
+          role: user.role,
+          emailVerified: user.emailVerified,
+          profile: user.profile,
         },
       });
       return ResponseApi.success(res, tokens);
@@ -175,16 +171,14 @@ export default class AuthController {
       }
 
       // create reset token
-      const resetToken = await this.services.createResetPasswordToken(
-        user[0]._id,
-      );
+      const resetToken = await this.services.createResetPasswordToken(user._id);
       // send email
       const link = `${config.email.reseturl}?token=${resetToken}`;
       await this.transporter.sendMail({
         from: config.email.user,
-        to: user[0].email,
+        to: user.email,
         subject: 'Reset Password',
-        html: emailVerifyTemplate(user[0].email, link, 'Reset'),
+        html: emailVerifyTemplate(user.email, link, 'Reset'),
       });
 
       return ResponseApi.noContent(res);
@@ -308,12 +302,12 @@ export default class AuthController {
       // create access and refresh token
       const tokens = await this.services.createAccessAndRefreshToken({
         user: {
-          _id: user[0]._id,
-          email: user[0].email,
-          username: user[0].username,
-          role: user[0].role,
-          emailVerified: user[0].emailVerified,
-          profile: user[0].profile,
+          _id: user._id,
+          email: user.email,
+          username: user.username,
+          role: user.role,
+          emailVerified: user.emailVerified,
+          profile: user.profile,
         },
       });
       return ResponseApi.success(res, tokens);
