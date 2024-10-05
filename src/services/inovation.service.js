@@ -14,7 +14,7 @@ export default class InovationService {
   async findById(id) {
     try {
       return await InovationModel.findById(id)
-        .populate('category', 'name')
+        .populate('category', '_id name')
         .populate('rating.user_id', 'fullname profile')
         .lean();
     } catch (error) {
@@ -69,7 +69,64 @@ export default class InovationService {
         .sort({[sort]: order === 'desc' ? -1 : 1})
         .skip((page - 1) * perPage)
         .limit(perPage)
-        .select('Image title status category createdAt')
+        .select('thumbnail title status category createdAt  rating')
+        .lean();
+
+      const [inovations, count] = await Promise.all([
+        inovationQuery,
+        InovationModel.countDocuments(query),
+      ]);
+
+      // Calculate average rating for each innovation
+      const processedInovations = inovations.map((inov) => ({
+        ...inov,
+        average_rating: inov.rating
+          ? inov.rating.reduce((acc, r) => acc + r.rating, 0) /
+            inov.rating.length
+          : 0,
+        count_rating: inov.rating ? inov.rating.length : 0,
+        rating: undefined,
+      }));
+
+      return {inovations: processedInovations, count};
+    } catch (error) {
+      throw new ResponseError(error.message, 400);
+    }
+  }
+
+  async searchAdminInovation({
+    page = 1,
+    perPage = 10,
+    q,
+    sort = 'createdAt',
+    order = 'desc',
+    category,
+    status,
+  }) {
+    try {
+      const query = {};
+
+      if (q) {
+        query.$or = [
+          {title: {$regex: q, $options: 'i'}},
+          {description: {$regex: q, $options: 'i'}},
+        ];
+      }
+
+      if (status) {
+        query.status = status;
+      }
+
+      if (category) {
+        query['category.name'] = category;
+      }
+
+      const inovationQuery = InovationModel.find(query)
+        .populate('category', 'name')
+        .sort({[sort]: order === 'desc' ? -1 : 1})
+        .skip((page - 1) * perPage)
+        .limit(perPage)
+        .select('thumbnail title status category createdAt')
         .lean();
 
       const [inovations, count] = await Promise.all([
@@ -147,6 +204,15 @@ export default class InovationService {
 
   async createRatingInovation({inovation_id, ...ratingData}) {
     try {
+      // check if already rated by user
+      const existingRating = await InovationModel.findOne({
+        _id: inovation_id,
+        'rating.user_id': ratingData.user_id,
+      });
+      if (existingRating) {
+        throw new ResponseError('Already rated', 400);
+      }
+
       return await InovationModel.findByIdAndUpdate(
         inovation_id,
         {$push: {rating: ratingData}},

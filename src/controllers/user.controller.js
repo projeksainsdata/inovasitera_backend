@@ -21,13 +21,17 @@ class UserControllers {
       const user_params = await this.service.findByIdPassword(req.params.id);
 
       // check if the user is updating the password
-      if (value.newPassword || value.confirmPassword || value.currentPassword) {
+      if (
+        value.currentPassword ||
+        value.newPassword ||
+        value.confirmNewPassword
+      ) {
         // validate the password fields
 
         const validatorPassword =
           userValidate.userUpdatePasswordSchema.validate({
-            password: value.newPassword,
-            password2: value.confirmPassword,
+            newPassword: value.newPassword,
+            confirmNewPassword: value.confirmNewPassword,
           });
 
         if (validatorPassword.error) {
@@ -50,11 +54,21 @@ class UserControllers {
 
       // call the service
       await this.service.updateUser(user_params._id, value);
-      // make new token
       // call new updated user
       const userNew = await this.service.findById(user_params._id);
+      // make new token
+      const tokens = await this.authService.createAccessAndRefreshToken({
+        user: {
+          _id: userNew._id,
+          email: userNew.email,
+          username: userNew.username,
+          role: userNew.role,
+          emailVerified: userNew.emailVerified,
+          profile: userNew.profile,
+        },
+      });
 
-      return ResponseApi.success(res, userNew);
+      return ResponseApi.success(res, {user: userNew, tokens});
     } catch (error) {
       return next(error);
     }

@@ -3,6 +3,8 @@ import express from 'express';
 import authMiddleware from '../middlewares/auth.middleware.js';
 import createOwnershipMiddleware from '../middlewares/isowner.middleware.js';
 import User from '../models/user.model.js';
+import roleMiddleware from '../middlewares/role.middleware.js';
+import ROLE, {ROLE_PERMISSION} from '../enum/role.enum.js';
 
 export default function userRouter() {
   const router = express.Router();
@@ -10,7 +12,11 @@ export default function userRouter() {
 
   const userOwnershipMiddleware = createOwnershipMiddleware(User, 'id', '_id');
 
-  router.get('/', authMiddleware, controller.searchUser);
+  router.get(
+    '/',
+    [authMiddleware, roleMiddleware(ROLE_PERMISSION[ROLE.ADMIN])],
+    controller.searchUser,
+  );
 
   router.get('/:id', authMiddleware, controller.getUserById);
 

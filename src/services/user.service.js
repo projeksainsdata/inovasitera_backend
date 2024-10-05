@@ -57,9 +57,11 @@ export default class UserService {
     page = 1,
     perPage = 10,
     q,
+
     sort = 'createdAt',
     order = 'desc',
     role,
+    status,
   }) {
     try {
       const query = {};
@@ -77,10 +79,14 @@ export default class UserService {
         query.role = role;
       }
 
+      if (status) {
+        query['inovator.status'] = status;
+      }
+
       // Build query
       const userQuery = UserModel.find(query)
         .select(
-          'fullname username email role createdAt provider inovator.fakultas inovator.prodi',
+          'fullname username email role createdAt provider inovator.fakultas inovator.prodi inovator.status',
         )
         .sort({[sort]: order === 'desc' ? -1 : 1})
         .skip((page - 1) * perPage)

@@ -74,11 +74,11 @@ import Joi from 'joi';
 //       type: Array,
 //       default: []
 //     },
-//     itera_fakultas: {
+//     fakultas: {
 //       type: String,
 //       default: ''
 //     },
-//     itera_prodi: {
+//     prodi: {
 //       type: String,
 //       default: ''
 //     }
@@ -99,24 +99,25 @@ export const userSchema = Joi.object({
   phonenumber: Joi.string().default(''),
   gender: Joi.string().default(''),
   dateOfBirth: Joi.string().default(''),
-  forgotPassword: Joi.string().default(''),
-  resetPassword: Joi.string().default(''),
   inovator: Joi.object({
     unit: Joi.string().default(''),
     fields: Joi.array().default([]),
-    itera_fakultas: Joi.string().default(''),
-    itera_prodi: Joi.string().default(''),
+    fakultas: Joi.string().default(''),
+    prodi: Joi.string().default(''),
+    status: Joi.string()
+      .default('pending')
+      .valid('pending', 'active', 'inactive'),
   }),
 });
 
 export const userUpdateSchema = Joi.object({
-  role: Joi.string().valid('inovator', 'member'),
-  fullname: Joi.string(),
-  username: Joi.string(),
-  email: Joi.string(),
+  role: Joi.string().valid('innovator', 'member', 'admin  ').allow(''),
+  fullname: Joi.string().allow(''),
+  username: Joi.string().allow(''),
+  email: Joi.string().allow(''),
   password: Joi.string().allow(''),
-  provider: Joi.string(),
-  profile: Joi.string(),
+  provider: Joi.string().allow(''),
+  profile: Joi.string().allow(''),
   address: Joi.string().allow(''),
   phonenumber: Joi.string().allow(''),
   forgotPassword: Joi.string().allow(''),
@@ -124,11 +125,22 @@ export const userUpdateSchema = Joi.object({
   inovator: Joi.object({
     unit: Joi.string().allow(''),
     fields: Joi.array(),
-    itera_fakultas: Joi.string().allow(''),
-    itera_prodi: Joi.string().allow(''),
+    fakultas: Joi.string().allow(''),
+    prodi: Joi.string().allow(''),
+    status: Joi.string().valid('pending', 'active', 'inactive').allow(''),
   }),
   gender: Joi.string().allow(''),
   dateOfBirth: Joi.string().allow(''),
+
+  // change password
+  currentPassword: Joi.string().allow(''),
+  newPassword: Joi.string().allow(''),
+  confirmNewPassword: Joi.string().allow(''),
+});
+
+export const userUpdatePasswordSchema = Joi.object({
+  newPassword: Joi.string().required(),
+  confirmNewPassword: Joi.string().required().valid(Joi.ref('newPassword')),
 });
 
 export const userLoginSchema = Joi.object({
@@ -137,17 +149,6 @@ export const userLoginSchema = Joi.object({
 });
 
 export const userRegisterSchema = Joi.object({
-  // role: string;
-  // fullname: string;
-  // username: string;
-  // email: string;
-  // fakultas?: string | undefined;
-  // prodi?: string | undefined;
-  // "inovator.fakultas"?: string | undefined;
-  // "inovator.prodi"?: string | undefined;
-  // password: string;
-  // confirmPassword: string;
-
   role: Joi.string().valid('innovator', 'member').default('member'),
   fullname: Joi.string().required(),
   username: Joi.string().required(),
@@ -155,8 +156,12 @@ export const userRegisterSchema = Joi.object({
   gender: Joi.string(),
   dateOfBirth: Joi.string(),
   phonenumber: Joi.string(),
-  'inovator.fakultas': Joi.string(),
-  'inovator.prodi': Joi.string(),
+  inovator: Joi.object({
+    unit: Joi.string(),
+    fields: Joi.array(),
+    fakultas: Joi.string(),
+    prodi: Joi.string(),
+  }),
   password: Joi.string().required(),
   confirmPassword: Joi.ref('password'),
 });
@@ -179,7 +184,8 @@ export const userQuerySchema = Joi.object({
   page: Joi.number().default(1),
   perPage: Joi.number().default(10),
   q: Joi.string().allow(''),
-  role: Joi.string().valid('inovator', 'member', 'admin').allow(''),
+  role: Joi.string().valid('innovator', 'member', 'admin').allow(''),
+  status: Joi.string().valid('pending', 'active', 'inactive').allow(''),
   sort: Joi.string().default('createdAt'),
   order: Joi.string().default('desc'),
 });
