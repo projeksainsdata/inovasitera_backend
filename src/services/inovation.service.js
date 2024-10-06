@@ -76,10 +76,8 @@ export default class InovationService {
         .select('thumbnail title status category createdAt rating')
         .sort({[sort]: order === 'desc' ? -1 : 1})
         .paginate(page, perPage);
-      console.log(builder);
 
       const {results: inovations, count} = await builder.execute();
-      console.log(inovations);
       const processedInovations = inovations.map((inov) => ({
         ...inov,
         average_rating: inov.rating
