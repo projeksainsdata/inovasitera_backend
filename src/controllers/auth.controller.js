@@ -77,6 +77,7 @@ export default class AuthController {
           role: user.role,
           emailVerified: user.emailVerified,
           profile: user.profile,
+          status: user?.inovator?.status,
         },
       });
       return ResponseApi.success(res, tokens);
@@ -269,6 +270,7 @@ export default class AuthController {
           role: user.role,
           emailVerified: user.emailVerified,
           profile: user.profile,
+          status: user?.inovator?.status,
         },
       });
 
@@ -308,6 +310,7 @@ export default class AuthController {
           role: user.role,
           emailVerified: user.emailVerified,
           profile: user.profile,
+          status: user?.inovator?.status,
         },
       });
       return ResponseApi.success(res, tokens);

@@ -26,12 +26,29 @@ const discussionSchema = new Schema(
   {timestamps: true},
 );
 
-// when we populate the replies field, it will look for the parent_discussion_id field in the Discussions model
-
+// Virtual for replies
 discussionSchema.virtual('replies', {
   ref: 'Discussions',
   localField: '_id',
   foreignField: 'parent_discussion_id',
+});
+
+// Middleware to delete all child discussions when a parent is deleted
+discussionSchema.pre('remove', async function (next) {
+  try {
+    // Find all child discussions
+    const childDiscussions = await this.model('Discussions').find({
+      parent_discussion_id: this._id,
+    });
+
+    // Remove each child discussion
+    for (const child of childDiscussions) {
+      await child.remove();
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 const Discussion = model('Discussions', discussionSchema);

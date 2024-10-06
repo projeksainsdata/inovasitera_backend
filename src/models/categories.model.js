@@ -29,6 +29,18 @@ categorySchema.index({name: 1}, {unique: true});
 
 categorySchema.index({weight: 1});
 
+// Middleware to handle cascading deletes
+categorySchema.pre('remove', async function (next) {
+  try {
+    // delete all inovations that have this category
+    await this.model('Inovations').deleteMany({category: this._id});
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 const Category = model('Categories', categorySchema);
 
 Category.createIndexes();

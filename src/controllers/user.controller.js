@@ -65,6 +65,7 @@ class UserControllers {
           role: userNew.role,
           emailVerified: userNew.emailVerified,
           profile: userNew.profile,
+          status: userNew?.inovator?.status,
         },
       });
 

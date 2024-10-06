@@ -111,7 +111,7 @@ export const userSchema = Joi.object({
 });
 
 export const userUpdateSchema = Joi.object({
-  role: Joi.string().valid('innovator', 'member', 'admin  ').allow(''),
+  role: Joi.string().valid('innovator', 'member', 'admin').allow(''),
   fullname: Joi.string().allow(''),
   username: Joi.string().allow(''),
   email: Joi.string().allow(''),
@@ -157,10 +157,10 @@ export const userRegisterSchema = Joi.object({
   dateOfBirth: Joi.string(),
   phonenumber: Joi.string(),
   inovator: Joi.object({
-    unit: Joi.string(),
+    unit: Joi.string().allow(''),
     fields: Joi.array(),
-    fakultas: Joi.string(),
-    prodi: Joi.string(),
+    fakultas: Joi.string().allow(''),
+    prodi: Joi.string().allow(''),
   }),
   password: Joi.string().required(),
   confirmPassword: Joi.ref('password'),

@@ -132,6 +132,20 @@ userSchema.index(
   },
 );
 
+userSchema.pre('remove', async function (next) {
+  try {
+    // delete all inovations that have this user
+    await this.model('Inovations').deleteMany({user_id: this._id});
+    // delete all Discussions that have this user
+    await this.model('Discussions').deleteMany({user_id: this._id});
+    // delete whitelist
+    await this.model('Whitelists').deleteMany({user_id: this._id});
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 const UserModel = model('Users', userSchema);
 
 UserModel.createIndexes();

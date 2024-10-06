@@ -1,6 +1,7 @@
 // inovationService.js
 import InovationModel from '../models/inovation.model.js';
 import ResponseError from '../responses/error.response.js';
+import {MongooseAggregationBuilder} from '../utils/buildQuery.js';
 
 export default class InovationService {
   async createInovation(data) {
@@ -33,7 +34,6 @@ export default class InovationService {
       throw new ResponseError(error.message, 400);
     }
   }
-
   async searchUserInovation(
     user_id,
     {
@@ -47,37 +47,39 @@ export default class InovationService {
     },
   ) {
     try {
-      const query = {user_id};
+      const builder = new MongooseAggregationBuilder(InovationModel);
+
+      builder.addSearchQuery({user_id});
 
       if (q) {
-        query.$or = [
-          {title: {$regex: q, $options: 'i'}},
-          {description: {$regex: q, $options: 'i'}},
-        ];
+        builder.addSearchQuery({
+          $or: [
+            {title: {$regex: q, $options: 'i'}},
+            {description: {$regex: q, $options: 'i'}},
+          ],
+        });
       }
 
-      if (status) {
-        query.status = status;
-      }
+      if (status) builder.addSearchQuery({status});
+      if (category) builder.addSearchQuery({'category.name': category});
 
-      if (category) {
-        query['category.name'] = category;
-      }
-
-      const inovationQuery = InovationModel.find(query)
-        .populate('category', 'name')
+      builder
+        .addLookupStage({
+          from: 'categories',
+          localField: 'category',
+          foreignField: '_id',
+          as: 'category',
+        })
+        .addFields({
+          category: {$arrayElemAt: ['$category', 0]},
+        })
+        .select('thumbnail title status category createdAt rating')
         .sort({[sort]: order === 'desc' ? -1 : 1})
-        .skip((page - 1) * perPage)
-        .limit(perPage)
-        .select('thumbnail title status category createdAt  rating')
-        .lean();
+        .paginate(page, perPage);
+      console.log(builder);
 
-      const [inovations, count] = await Promise.all([
-        inovationQuery,
-        InovationModel.countDocuments(query),
-      ]);
-
-      // Calculate average rating for each innovation
+      const {results: inovations, count} = await builder.execute();
+      console.log(inovations);
       const processedInovations = inovations.map((inov) => ({
         ...inov,
         average_rating: inov.rating
@@ -104,37 +106,36 @@ export default class InovationService {
     status,
   }) {
     try {
-      const query = {};
+      const builder = new MongooseAggregationBuilder(InovationModel);
 
       if (q) {
-        query.$or = [
-          {title: {$regex: q, $options: 'i'}},
-          {description: {$regex: q, $options: 'i'}},
-        ];
+        builder.addSearchQuery({
+          $or: [
+            {title: {$regex: q, $options: 'i'}},
+            {description: {$regex: q, $options: 'i'}},
+          ],
+        });
       }
 
-      if (status) {
-        query.status = status;
-      }
+      if (status) builder.addSearchQuery({status});
+      if (category) builder.addSearchQuery({'category.name': category});
 
-      if (category) {
-        query['category.name'] = category;
-      }
-
-      const inovationQuery = InovationModel.find(query)
-        .populate('category', 'name')
+      builder
+        .addLookupStage({
+          from: 'categories',
+          localField: 'category',
+          foreignField: '_id',
+          as: 'category',
+        })
+        .addFields({
+          category: {$arrayElemAt: ['$category', 0]},
+        })
+        .select('thumbnail title status category createdAt rating')
         .sort({[sort]: order === 'desc' ? -1 : 1})
-        .skip((page - 1) * perPage)
-        .limit(perPage)
-        .select('thumbnail title status category createdAt')
-        .lean();
+        .paginate(page, perPage);
 
-      const [inovations, count] = await Promise.all([
-        inovationQuery,
-        InovationModel.countDocuments(query),
-      ]);
+      const {results: inovations, count} = await builder.execute();
 
-      // Calculate average rating for each innovation
       const processedInovations = inovations.map((inov) => ({
         ...inov,
         average_rating: inov.rating
@@ -142,6 +143,7 @@ export default class InovationService {
             inov.rating.length
           : 0,
         count_rating: inov.rating ? inov.rating.length : 0,
+        rating: undefined,
       }));
 
       return {inovations: processedInovations, count};
@@ -159,34 +161,35 @@ export default class InovationService {
     category,
   }) {
     try {
-      const query = {status: 'approved'};
+      const builder = new MongooseAggregationBuilder(InovationModel);
 
       if (q) {
-        query.$or = [
-          {title: {$regex: q, $options: 'i'}},
-          {description: {$regex: q, $options: 'i'}},
-        ];
+        builder.addSearchQuery({
+          $or: [
+            {title: {$regex: q, $options: 'i'}},
+            {description: {$regex: q, $options: 'i'}},
+          ],
+        });
       }
 
-      if (category) {
-        query['category.name'] = category;
-      }
+      if (category) builder.addSearchQuery({'category.name': category});
 
-      const inovationQuery = InovationModel.find(query)
-        .populate('category', 'name')
-        .populate('rating')
+      builder
+        .addLookupStage({
+          from: 'categories',
+          localField: 'category',
+          foreignField: '_id',
+          as: 'category',
+        })
+        .addFields({
+          category: {$arrayElemAt: ['$category', 0]},
+        })
+        .select('thumbnail title status category createdAt rating')
         .sort({[sort]: order === 'desc' ? -1 : 1})
-        .skip((page - 1) * perPage)
-        .limit(perPage)
-        .select('thumbnail title category rating')
-        .lean();
+        .paginate(page, perPage);
 
-      const [inovations, count] = await Promise.all([
-        inovationQuery,
-        InovationModel.countDocuments(query),
-      ]);
+      const {results: inovations, count} = await builder.execute();
 
-      // Process ratings
       const processedInovations = inovations.map((inov) => ({
         ...inov,
         average_rating: inov.rating
@@ -194,6 +197,7 @@ export default class InovationService {
             inov.rating.length
           : 0,
         count_rating: inov.rating ? inov.rating.length : 0,
+        rating: undefined,
       }));
 
       return {inovations: processedInovations, count};

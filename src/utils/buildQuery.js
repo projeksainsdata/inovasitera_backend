@@ -1,3 +1,6 @@
+import mongoose from 'mongoose';
+const ObjectId = mongoose.Types.ObjectId;
+
 export class MongooseAggregationBuilder {
   constructor(model) {
     this.model = model;
@@ -34,6 +37,8 @@ export class MongooseAggregationBuilder {
               return acc;
             }, {}),
           );
+        } else if (key === '$text') {
+          this.matchStage.$text = {$search: value};
         } else {
           Object.assign(this.matchStage, buildCondition(key, value));
         }
@@ -45,13 +50,28 @@ export class MongooseAggregationBuilder {
   buildQueryCondition(key, value) {
     if (typeof value === 'number') {
       return value;
-    } else if (typeof value === 'string') {
+    } else if (key === '$regex') {
       return {$regex: value, $options: 'i'};
+    } else if (typeof value === 'string') {
+      // Check for ObjectId pattern (24 character hex string)
+      if (mongoose.isValidObjectId(value)) {
+        return new ObjectId(value);
+      }
+      // Check if the value contains commas
+      if (value.includes(',')) {
+        const arrayValues = value.split(',').map((v) => v.trim());
+        return {$in: arrayValues};
+      }
+      return value;
     } else if (value instanceof Date) {
       return value;
     } else if (Array.isArray(value)) {
       return {$in: value};
-    } else {
+    } else if (typeof value === 'object' && value !== null) {
+      // Handle nested query conditions, for example, {$in: [ObjectId, ObjectId]}
+      if (value.$in) {
+        return {$in: value.$in.map((v) => new ObjectId(v))};
+      }
       return value;
     }
   }
@@ -95,17 +115,28 @@ export class MongooseAggregationBuilder {
     this.limit = perPage;
     return this;
   }
+
   populate(fields) {
     this.populateFields = Array.isArray(fields) ? fields : [fields];
     return this;
   }
 
   select(fields) {
-    this.selectFields = fields;
+    if (typeof fields === 'string') {
+      fields.split(' ').forEach((field) => {
+        this.selectFields[field] = 1;
+      });
+    } else if (Array.isArray(fields)) {
+      fields.forEach((field) => {
+        this.selectFields[field] = 1;
+      });
+    } else if (typeof fields === 'object') {
+      Object.assign(this.selectFields, fields);
+    }
     return this;
   }
 
-  async execute() {
+  build() {
     if (Object.keys(this.matchStage).length > 0) {
       this.pipeline.push({$match: this.matchStage});
     }
@@ -134,10 +165,6 @@ export class MongooseAggregationBuilder {
       this.pipeline.push({$project: this.selectFields});
     }
 
-    const countPipeline = [...this.pipeline, {$count: 'total'}];
-    const [countResult] = await this.model.aggregate(countPipeline);
-    const count = countResult ? countResult.total : 0;
-
     if (this.skip > 0) {
       this.pipeline.push({$skip: this.skip});
     }
@@ -146,7 +173,15 @@ export class MongooseAggregationBuilder {
       this.pipeline.push({$limit: this.limit});
     }
 
-    const results = await this.model.aggregate(this.pipeline);
+    return this.model.aggregate(this.pipeline);
+  }
+
+  async execute() {
+    const countPipeline = [...this.pipeline, {$count: 'total'}];
+    const [countResult] = await this.model.aggregate(countPipeline);
+    const count = countResult ? countResult.total : 0;
+
+    const results = await this.build();
 
     return {results, count};
   }

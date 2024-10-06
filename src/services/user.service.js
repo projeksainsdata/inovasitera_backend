@@ -12,6 +12,7 @@ export default class UserService {
         email: newUser.email,
         username: newUser.username,
         fullname: newUser.fullname,
+        role: newUser.role,
       };
     } catch (error) {
       throw new ResponseError(error.message, 400);
