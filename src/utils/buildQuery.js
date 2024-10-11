@@ -13,6 +13,13 @@ export class MongooseAggregationBuilder {
     this.selectFields = {};
   }
 
+  addRawSearchQuery(searchQuery) {
+    if (typeof searchQuery === 'object' && searchQuery !== null) {
+      Object.assign(this.matchStage, searchQuery);
+    }
+    return this;
+  }
+
   addSearchQuery(searchQuery) {
     const buildCondition = (key, value) => {
       if (

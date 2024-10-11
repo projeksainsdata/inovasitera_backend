@@ -52,7 +52,7 @@ export default class InovationService {
       builder.addSearchQuery({user_id});
 
       if (q) {
-        builder.addSearchQuery({
+        builder.addRawSearchQuery({
           $or: [
             {title: {$regex: q, $options: 'i'}},
             {description: {$regex: q, $options: 'i'}},
@@ -107,7 +107,7 @@ export default class InovationService {
       const builder = new MongooseAggregationBuilder(InovationModel);
 
       if (q) {
-        builder.addSearchQuery({
+        builder.addRawSearchQuery({
           $or: [
             {title: {$regex: q, $options: 'i'}},
             {description: {$regex: q, $options: 'i'}},
@@ -162,7 +162,7 @@ export default class InovationService {
       const builder = new MongooseAggregationBuilder(InovationModel);
 
       if (q) {
-        builder.addSearchQuery({
+        builder.addRawSearchQuery({
           $or: [
             {title: {$regex: q, $options: 'i'}},
             {description: {$regex: q, $options: 'i'}},
