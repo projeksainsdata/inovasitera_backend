@@ -95,6 +95,5 @@
       "npm run lint",
       "git add ."
     ]
-  },
-  "type": "module"
+  }
 }
